@@ -24,6 +24,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;line-height:1.6}
 main{max-width:860px;margin:0 auto;padding:16px}
 h1{font-size:1.4rem;margin:4px 0 2px}
+#appver{display:inline-block;font-size:.7rem;font-weight:700;background:var(--mute,#64748b);color:#fff;border-radius:999px;padding:2px 8px;vertical-align:middle;margin-inline-start:6px}
 p.sub{margin:0 0 14px;color:var(--mute);font-size:.95rem}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
 .drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;cursor:pointer;color:var(--mute)}
@@ -69,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي</h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v1.1</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -358,6 +359,7 @@ addEventListener("resize",()=>{if(cur>=0&&steps[cur]){const s=steps[cur];layout(
 const VW=1920,VH=1080,FX=0,FY=0,FW=1920,FH=1080,GAP0=.3;
 const stepDur=s=>GAP0+(s.buf?s.buf.duration:2.5+s.say.length*.06)+.7+pauseOf(s);
 function timeline(){const IN=($("lvl").value||$("sub").value.trim()||$("lno").value.trim()||$("lpg").value.trim())?4.6:3.4,durs=steps.map(stepDur),starts=[];let t=IN;durs.forEach(d=>{starts.push(t);t+=d});return{IN,durs,starts,end:t,total:t+Math.max(5.5,OUT.buf?OUT.buf.duration+1.8:0)}}
+function vname(){const lv=$("lvl").selectedIndex,p2=v=>{v=(v||"").trim().replace(/[^0-9]/g,"");return v?v.padStart(2,"0"):""},n=p2($("lno").value),g=p2($("lpg").value),parts=[];if(lv>0)parts.push("(0"+lv+")");if(n)parts.push(n);if(g)parts.push(g);return parts.length?parts.join("-"):"lesson-video"}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
 const vst=m=>{$("vst").textContent=m};
 let curDia="msa",audioDia=null;
@@ -662,7 +664,7 @@ $("dv").onclick=async()=>{
   const rec=new MediaRecorder(stream,{mimeType:mt,videoBitsPerSecond:RW>1500?10e6:5e6}),ch=[];let wl=null;
   try{wl=await navigator.wakeLock.request("screen")}catch(e){}
   rec.ondataavailable=e=>{if(e.data.size)ch.push(e.data)};
-  rec.onstop=()=>{$("cx").classList.add("hide");const mp4=mt.startsWith("video/mp4");if(cancelled){vst("أُلغي التسجيل.");$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{});return}dl(new Blob(ch,{type:mt.split(";")[0]}),"lesson-video."+(mp4?"mp4":"webm"));
+  rec.onstop=()=>{$("cx").classList.add("hide");const mp4=mt.startsWith("video/mp4");if(cancelled){vst("أُلغي التسجيل.");$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{});return}dl(new Blob(ch,{type:mt.split(";")[0]}),vname()+"."+(mp4?"mp4":"webm"));
     vst("تم تحميل الفيديو ✅ "+RW+"×"+cv.height);$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{})};
   rec.start(500);const t0=performance.now()+250;
   const tick=()=>{const t=Math.max(0,(performance.now()-t0)/1000);if(t>=T.total||cancelled){rec.stop();return}
