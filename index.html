@@ -70,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v1.1</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v1.2</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -587,7 +587,12 @@ function drawCover(x0,lt,out){out=out==null?1:out;const a=eio(Math.min(1,lt/.8))
   const by=y0+(L.length-1)*lh+fs*.72;x0.fillStyle=CY;x0.fillRect(xR-240*eio(Math.min(1,lt/1.2)),by,240*eio(Math.min(1,lt/1.2)),10);
   const meta=[sb,no?"الدرس "+no:"",pg?"الصفحة "+pg:""].filter(Boolean).join("   •   ");
   if(meta){x0.fillStyle="#cfeeff";x0.font=`700 46px ${FT}`;x0.fillText(meta,xR,by+80)}
+  {const y2=Math.min(by+186,1052),y1=y2-46;x0.save();x0.direction="ltr";x0.textAlign="right";x0.shadowColor="rgba(0,10,40,.45)";x0.shadowBlur=8;
+    x0.fillStyle="#fff";x0.font=`600 38px ${FT}`;x0.fillText(CHAN,xR,y1);x0.fillStyle=CY;x0.font=`600 34px ${FT}`;x0.fillText(MAIL,xR,y2);x0.restore()}
   x0.restore()}
+const CHAN="قناة دروس الابتدائي",MAIL="khaledkoudja2222@gmail.com",WM_SEC=3;
+function drawWM(x0,lt,dur){const d=Math.min(WM_SEC,dur);if(lt>=d)return;const f=.3,a=Math.min(1,lt/f,(d-lt)/f);if(a<=0)return;
+  x0.save();x0.globalAlpha=.7*a;x0.direction="ltr";x0.textAlign="left";x0.textBaseline="middle";x0.font=`600 32px ${FT}`;x0.shadowColor="rgba(0,0,0,.7)";x0.shadowBlur=8;x0.fillStyle="#fff";x0.fillText(MAIL,44,VH-44);x0.restore()}
 function introCard(x0,lt,out){drawCover(x0,lt,out)}
 function card(x0,lt,main,sub,out){const p=pl(),a=Math.min(1,lt/.8)*out;x0.save();x0.globalAlpha=a;x0.textAlign="center";x0.textBaseline="middle";x0.direction="rtl";x0.fillStyle="#fff";
   let fs=88;for(;fs>40;fs-=4){x0.font=`800 ${fs}px ${FT}`;if(x0.measureText(main).width<1650)break}
@@ -641,7 +646,7 @@ function renderFrame(x0,t,T){
   tx=cm.tx;ty=cm.ty;z=cm.z;
   x0.save();const kb=1+.015*lt/dur;x0.translate(VW/2,VH/2);x0.scale(kb,kb);x0.translate(-VW/2,-VH/2);
   if(pc&&lt<.6&&pc.img!==c.img){drawPage(x0,pc,pc.tx,pc.ty,pc.z,1,99,"",false);drawPage(x0,c,tx,ty,z,eio(lt/.6),lt,s.tool,true,i)}else drawPage(x0,c,tx,ty,z,1,lt,s.tool,true,i);
-  x0.restore();drawLogo(x0,true)}
+  x0.restore();drawLogo(x0,true);drawWM(x0,lt,dur)}
 let cancelled=false;
 $("cx").onclick=()=>{cancelled=true};
 $("fs").onclick=()=>{const f=$("frame");(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};
