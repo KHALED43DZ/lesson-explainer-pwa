@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="شارح الدروس">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=Playpen+Sans+Arabic:wght@100..800&family=Caveat:wght@500..700&display=swap" rel="stylesheet">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f6f4ee;--card:#fff;--ink:#1f2a37;--mute:#6b7280;--acc:#2563eb;--line:#e5e1d6;--mark:#e11d48;--cap:#fff8e1}
@@ -70,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v1.4</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v1.6</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -201,7 +201,7 @@ $("go").onclick=async()=>{
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
 - نوّع الأدوات. image هو رقم الصورة.`;
     const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-    const r=await useKeys(K("t"),async key=>{let r;
+    let r,j;for(let at=0;at<3;at++){r=await useKeys(K("t"),async key=>{let r;
     if(!key.startsWith("sk-ant-")){
       const parts=[];
       for(const i of imgs)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
@@ -224,8 +224,7 @@ $("go").onclick=async()=>{
       r={text:d.content.map(c=>c.text||"").join("")};
     }
     return r});
-    const t=r.text.replace(/```json|```/g,"").trim();
-    const j=JSON.parse(t.slice(t.indexOf("{"),t.lastIndexOf("}")+1));
+    try{j=parseJ(r.text);break}catch(e){if(at>=2)throw e}}
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>f&&{x:+f.x,y:+f.y,text:f.text}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.jumps=(Array.isArray(t.jumps)?t.jumps:[]).map(q=>q&&{x1:+q.x1,x2:+q.x2,y:+q.y,text:q.text}).filter(q=>q&&isFinite(q.x1)&&isFinite(q.x2)&&isFinite(q.y))});
@@ -359,11 +358,16 @@ addEventListener("resize",()=>{if(cur>=0&&steps[cur]){const s=steps[cur];layout(
 const VW=1920,VH=1080,FX=0,FY=0,FW=1920,FH=1080,GAP0=.3;
 const stepDur=s=>GAP0+(s.buf?s.buf.duration:2.5+s.say.length*.06)+.7+pauseOf(s);
 function timeline(){const IN=($("lvl").value||$("sub").value.trim()||$("lno").value.trim()||$("lpg").value.trim())?4.6:3.4,durs=steps.map(stepDur),starts=[];let t=IN;durs.forEach(d=>{starts.push(t);t+=d});return{IN,durs,starts,end:t,total:t+Math.max(5.5,OUT.buf?OUT.buf.duration+1.8:0)}}
-function vname(){const lv=$("lvl").selectedIndex,p2=v=>{v=(v||"").trim().replace(/[^0-9]/g,"");return v?v.padStart(2,"0"):""},n=p2($("lno").value),g=p2($("lpg").value),parts=[];if(lv>0)parts.push("(0"+lv+")");if(n)parts.push(n);if(g)parts.push(g);return parts.length?parts.join("-"):"lesson-video"}
+function vname(){const lv=$("lvl").selectedIndex,p2=v=>{v=(v||"").trim().replace(/[^0-9]/g,"");return v?v.padStart(2,"0"):""},n=p2($("lno").value),g=p2($("lpg").value),parts=[],sb=$("sub").value,pf=/إنجليز|انجليز|english/i.test(sb)?"en":/فرنس|fran[cç]|french/i.test(sb)?"fr":"";if(pf)parts.push(pf);if(lv>0)parts.push("(0"+lv+")");if(n)parts.push(n);if(g)parts.push(g);return parts.length?parts.join("-"):"lesson-video"}
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
 const vst=m=>{$("vst").textContent=m};
 let curDia="msa",audioDia=null;
 const DIA={dz:"الدارجة الجزائرية"};
+function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const st=t.search(/[\[{]/);t=t.slice(st<0?0:st,Math.max(t.lastIndexOf("]"),t.lastIndexOf("}"))+1);
+  try{return JSON.parse(t)}catch(e){}
+  let o="",q=false,esc=false;for(const ch of t){if(q){if(esc){o+=ch;esc=false}else if(ch==="\\"){o+=ch;esc=true}else if(ch==='"'){o+=ch;q=false}else if(ch==="\n"){o+="\\n"}else if(ch==="\r"||ch==="\t"){o+=" "}else o+=ch}else{if(ch==='"'){q=true;o+=ch}else if(ch==="\u201C"||ch==="\u201D"){q=true;o+='"'}else o+=ch}}
+  o=o.replace(/,\s*([}\]])/g,"$1").replace(/([{,]\s*)([A-Za-z_][\w]*)\s*:/g,'$1"$2":');
+  return JSON.parse(o)}
 async function llmJson(prompt,st){
   if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
   let t=await useKeys(K("t"),async key=>{let t;
@@ -378,7 +382,7 @@ async function llmJson(prompt,st){
     const d=await resp.json();if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من الخادم.");
     t=d.content.map(c=>c.text||"").join("")}
   return t},st);
-  t=t.replace(/```json|```/g,"").trim();return JSON.parse(t.slice(t.search(/[\[{]/),Math.max(t.lastIndexOf("]"),t.lastIndexOf("}"))+1))}
+  return parseJ(t)}
 async function applyDialect(){
   const d=$("dia").value;try{localStorage.setItem("dia",d)}catch(e){}
   if(d===curDia)return;
@@ -615,11 +619,9 @@ function drawPage(x0,c,tx,ty,z,al,lt,tool,sp,ex){
     x0.fillStyle=`rgba(5,10,25,${.3*a})`;x0.beginPath();x0.rect(-9999,-9999,19999,19999);x0.roundRect(x-p,y-p,w+2*p,h+2*p,14/z);x0.fill("evenodd");
     const oa=1-cl((lt-ZIN)/ZD);if(oa>0){x0.save();x0.strokeStyle=`rgba(225,29,72,${oa*a})`;x0.lineWidth=7/z;x0.strokeRect(x-p,y-p,w+2*p,h+2*p);x0.restore()}
     const q=Math.max(0,Math.min(1,(lt-.6)/.9));if(q>0){x0.shadowColor="rgba(225,29,72,.7)";x0.shadowBlur=16;drawAnn(c,tool,q,z,x0)}
-    if(TW>0&&ex===0){const f=1/z,yy=y+h+p+16*f;x0.save();x0.globalAlpha=al*TW;x0.shadowBlur=0;x0.textAlign="center";x0.textBaseline="middle";
-      x0.font=`600 ${34*f}px ${FT}`;const w1=x0.measureText(CHAN).width;x0.font=`600 ${30*f}px ${FT}`;const pw=Math.max(w1,x0.measureText(MAIL).width)+48*f,ph=104*f,cx=x+w/2;
-      x0.fillStyle="rgba(10,20,50,.88)";rr(x0,cx-pw/2,yy,pw,ph,ph*.28);x0.fill();x0.strokeStyle="#38d6ff";x0.lineWidth=2*f;x0.stroke();
-      x0.direction="rtl";x0.fillStyle="#fff";x0.font=`600 ${34*f}px ${FT}`;x0.fillText(CHAN,cx,yy+34*f);
-      x0.direction="ltr";x0.fillStyle="#38d6ff";x0.font=`600 ${30*f}px ${FT}`;x0.fillText(MAIL,cx,yy+74*f);x0.restore()}}
+    if(TW>0&&ex===0){const f=1/z,yy=y+h+p+14*f,cx=x+w/2,HW="'Playpen Sans Arabic',Cairo,Tahoma,sans-serif",HL="Caveat,'Playpen Sans Arabic',Cairo,sans-serif";x0.save();x0.globalAlpha=al*TW;x0.shadowBlur=0;x0.textAlign="center";x0.textBaseline="middle";x0.lineJoin="round";x0.lineWidth=7*f;x0.strokeStyle="rgba(8,16,40,.95)";
+      x0.direction="rtl";x0.font=`600 ${42.5*f}px ${HW}`;x0.strokeText(CHAN,cx,yy+30*f);x0.fillStyle="#fff";x0.fillText(CHAN,cx,yy+30*f);
+      x0.direction="ltr";x0.font=`700 ${46*f}px ${HL}`;x0.strokeText(MAIL,cx,yy+82*f);x0.fillStyle="#38d6ff";x0.fillText(MAIL,cx,yy+82*f);x0.restore()}}
   if(sp&&ex!=null)drawExtras(x0,c,ex,lt,z);x0.restore()}
 const cl=v=>Math.max(0,Math.min(1,v)),ZIN=1.5,ZD=1;
 function drawExtras(x0,c,i,lt,z){const iw=c.iw,ih=c.ih,s0=steps[i],ga=x0.globalAlpha;x0.save();x0.shadowBlur=0;x0.direction="ltr";x0.textAlign="center";x0.textBaseline="middle";
@@ -662,7 +664,7 @@ $("dv").onclick=async()=>{
   if(!steps.length)return;stopAll();$("dv").disabled=true;cancelled=false;$("cx").classList.remove("hide");
   if((K("a").length||K("t").length)&&!audioReady()){if(!await genAudio()){$("dv").disabled=false;$("cx").classList.add("hide");return}}
   genPub();vst("تجهيز الفيديو...");
-  try{await document.fonts.load("800 40px Cairo");await document.fonts.load("700 40px Cairo")}catch(e){}
+  try{await document.fonts.load("800 40px Cairo");await document.fonts.load("700 40px Cairo");await document.fonts.load("600 40px 'Playpen Sans Arabic'","قناة دروس الابتدائي khaled@gmail.com");await document.fonts.load("700 40px Caveat","khaledkoudja2222@gmail.com")}catch(e){}
   await Promise.all(imgs.map(i=>new Promise(r=>{const e=new Image();e.onload=()=>{i.el=e;r()};e.src=i.url})));
   const RW=+$("res").value,sc=RW/1920,T=timeline(),cv=document.createElement("canvas");cv.width=RW;cv.height=Math.round(RW*9/16);const x0=cv.getContext("2d");
   let pv=$("vprev");if(!pv){pv=document.createElement("div");pv.id="vprev";pv.style.marginTop="12px";$("vst").parentNode.after(pv)}
