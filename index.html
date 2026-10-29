@@ -70,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.1</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.2</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -134,6 +134,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <script>
 const $=id=>document.getElementById(id);
 const TM=()=>($("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
+async function fetchT(u,o,ms){const c=new AbortController(),tm=setTimeout(()=>c.abort(),ms||120000);try{return await fetch(u,{...o,signal:c.signal})}catch(e){if(e.name==="AbortError"){const x=new Error("انتهت مهلة الانتظار ("+Math.round((ms||120000)/1000)+" ث) دون ردّ من الخادم.");x.retry=true;throw x}const x=new Error("تعذّر الاتصال بالخادم: "+(e.message||e));x.retry=true;throw x}finally{clearTimeout(tm)}}
 const keyErr=(st,m)=>{const e=new Error(m);e.retry=[401,403,429,500,503].includes(st);return e};
 let kRot=0;
 async function useKeys(list,fn,st){const L=list.slice();if(!L.length)throw new Error("لا توجد مفاتيح، أضفها من الإعدادات ⚙️.");let last;
@@ -182,7 +183,7 @@ const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","
 // ---- تحليل الدرس ----
 $("go").onclick=async()=>{
   $("msg").textContent="";$("go").disabled=true;
-  $("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
+  const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس... '+Math.round((Date.now()-_t0)/1000)+" ث"},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
   try{
     if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
     const LEN={s:"5 إلى 6 خطوات",m:"7 إلى 9 خطوات",l:"10 إلى 13 خطوة مع تفصيل أكبر لكل مثال"};
@@ -190,11 +191,12 @@ $("go").onclick=async()=>{
 حلّل الدرس ثم اشرحه لتلميذ بالدارجة الجزائرية البسيطة والودودة (كما يكلّم معلم جزائري تلاميذ الابتدائي، مع إبقاء المصطلحات الرياضية المعتادة في المدرسة الجزائرية) في ${LEN[$("len").value]} متسلسلة (مقدمة، ثم الأفكار، ثم الأمثلة، ثم خلاصة).
 كل خطوة تشير إلى موضع محدد في الصورة (كلمة أو شكل أو جملة أو تمرين).
 المادة المُدخلة: ${$("sub").value.trim()||"غير محددة"}.
-في أول خطوة (المقدمة) انطق عنوان الدرس بهذه الصيغة بالضبط: «${TOPT[+$("ttlopt").value]}» ثم عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ولا تستعمل صيغة افتتاح أخرى مثل «درس اليوم»، ثم أكمل المقدمة.\nإن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام، وتجاوز العدد المذكور أعلاه:
-(1) غطِّ كل المفردات والجمل والعبارات الظاهرة في الصفحة دون إهمال أي منها، بمعدل 3 إلى 5 عناصر في كل خطوة، فتكون الخطوات من 10 إلى 20.
+في أول خطوة (المقدمة) انطق عنوان الدرس بهذه الصيغة بالضبط: «${TOPT[+$("ttlopt").value]}» ثم عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ولا تستعمل صيغة افتتاح أخرى مثل «درس اليوم»، ثم أكمل المقدمة.\nإن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام والعدد المذكور أعلاه:
+(1) غطِّ كل المفردات والجمل والعبارات الظاهرة في الصفحة دون إهمال أي منها، بمعدل عنصر واحد إلى 4 عناصر في كل خطوة. عدد الخطوات يتبع محتوى الصفحة فعلًا (عدد العناصر ÷ 3 تقريبًا، مع مقدمة وخلاصة قصيرتين)، ولا يقل عن 4 ولا يزيد عن 16. ممنوع الحشو واختلاق عناصر غير موجودة أو تكرار نفس العنصر في خطوات مختلفة.
 (2) في say اكتب الكلمة أو الجملة الأجنبية بحروفها اللاتينية كما في الكتاب داخل كلام بالدارجة: انطقها أولًا، ثم اشرح معناها بالدارجة، ثم أعدها مرة ثانية ليحفظها الطفل، واطلب منه الترديد معك (مثل: «عاود معايا»).
 (3) شرح المعاني والقواعد بالدارجة الجزائرية فقط، أما الكلمات والجمل الأجنبية فتبقى بلغتها الأصلية دون نقلها إلى الحروف العربية.
 (4) اجعل pause بين 2 و3 بعد كل مجموعة ليردد الطفل.
+تجاهل تمامًا أي علامة مائية أو توقيع أو خطوط ودوائر مرسومة باليد فوق الصفحة، ولا تعتبرها جزءًا من الدرس ولا تقرأها.
 أعد JSON فقط بلا أي نص آخر ولا علامات markdown بهذا الشكل:
 {"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","fills":[{"x":0.5,"y":0.5,"text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
 - box أرقام عشرية من 0 إلى 1: x,y الزاوية العليا اليسرى و w,h العرض والارتفاع، نسبةً إلى أبعاد الصورة. اجعله ضيقًا ومحكمًا حول عنصر واحد فقط، ولا تدمج عنصرين متباعدين أو شخصية مع تمرين. إن كانت الخطوة عامة استعمل null. اترك هامشًا صغيرًا حول العنصر.
@@ -204,14 +206,14 @@ $("go").onclick=async()=>{
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
 - نوّع الأدوات. image هو رقم الصورة.`;
     const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-    let r,j;for(let at=0;at<3;at++){r=await useKeys(K("t"),async key=>{let r;
+    let r,j;const T0=Date.now();for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>200000)break;r=await useKeys(K("t"),async key=>{let r;
     if(!key.startsWith("sk-ant-")){
       const parts=[];
       for(const i of imgs)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
       parts.push({text:prompt});
-      const resp=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",
+      const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",
         headers:{"content-type":"application/json","x-goog-api-key":key},
-        body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:"application/json"}})});
+        body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},100000);
       const d=await resp.json();
       if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من خادم Gemini.");
       r={text:((d.candidates&&d.candidates[0]&&d.candidates[0].content.parts)||[]).map(p=>p.text||"").join("")};
@@ -219,15 +221,15 @@ $("go").onclick=async()=>{
       const content=[];
       for(const i of imgs)content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await b64(i.blob)}});
       content.push({type:"text",text:prompt});
-      const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      const resp=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",
         headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:4000,messages:[{role:"user",content}]})});
+        body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:8000,messages:[{role:"user",content}]})},150000);
       const d=await resp.json();
       if(!resp.ok)throw keyErr(resp.status,resp.status===401?"المفتاح غير صحيح.":(d.error&&d.error.message)||"خطأ من الخادم.");
       r={text:d.content.map(c=>c.text||"").join("")};
     }
     return r});
-    try{j=parseJ(r.text);break}catch(e){if(at>=2)throw e}}
+    try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>f&&{x:+f.x,y:+f.y,text:f.text}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.jumps=(Array.isArray(t.jumps)?t.jumps:[]).map(q=>q&&{x1:+q.x1,x2:+q.x2,y:+q.y,text:q.text}).filter(q=>q&&isFinite(q.x1)&&isFinite(q.x2)&&isFinite(q.y))});
@@ -238,7 +240,7 @@ $("go").onclick=async()=>{
   }catch(e){
     $("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":(e.message||"حدث خطأ، حاول مرة أخرى.");
   }
-  $("st").textContent="";$("go").disabled=false;
+  clearInterval(_iv);$("st").textContent="";$("go").disabled=false;
 };
 
 // ---- العرض ----
@@ -373,15 +375,15 @@ function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const st=t.sear
   return JSON.parse(o)}
 async function llmJson(prompt,st){
   if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
-  let lastE;for(let at=0;at<3;at++){let t=await useKeys(K("t"),async key=>{let t;
+  let lastE;for(let at=0;at<2;at++){let t=await useKeys(K("t"),async key=>{let t;
   if(!key.startsWith("sk-ant-")){
-    const resp=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json"}})});
+    const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},150000);
     const d=await resp.json();if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من خادم Gemini.");
     t=((d.candidates&&d.candidates[0]&&d.candidates[0].content.parts)||[]).map(p=>p.text||"").join("")
   }else{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:6000,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:6000,messages:[{role:"user",content:prompt}]})},150000);
     const d=await resp.json();if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من الخادم.");
     t=d.content.map(c=>c.text||"").join("")}
   return t},st);
