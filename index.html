@@ -61,10 +61,6 @@ button:disabled{opacity:.45;cursor:default}
 .fld .w{grid-column:1/-1}
 .pj{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
 .pt{flex:1;min-width:0}.pt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt small{display:block;color:var(--mute)}
-.axis{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;background:var(--card2,#0f1115);border:1px solid var(--line,#2a2f3a);border-radius:12px;padding:12px 14px}
-.axis input{position:absolute;opacity:0;pointer-events:none}.axt{font-weight:700}.axt small{font-size:.75rem;color:var(--mute,#8b93a7);margin-inline-start:6px}
-.axi{position:relative;width:46px;height:26px;border-radius:999px;background:#3a4256;transition:.2s;flex:none}.axi::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
-.axis input:checked~.axi{background:#4f9dff}.axis input:checked~.axi::after{inset-inline-start:23px}
 .hide{display:none!important}
 #msg{color:var(--mark);margin-top:10px}
 .spin{display:inline-block;width:16px;height:16px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:rot 1s linear infinite;vertical-align:middle;margin-inline-end:8px}
@@ -74,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.0</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.1</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -85,7 +81,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
     <div><label for="sub">المادة</label><input id="sub" list="subs" placeholder="مثال: رياضيات"><datalist id="subs"><option value="رياضيات"><option value="اللغة العربية"><option value="التربية الإسلامية"><option value="التربية العلمية والتكنولوجية"><option value="التربية المدنية"><option value="التاريخ"><option value="الجغرافيا"><option value="اللغة الفرنسية"><option value="اللغة الإنجليزية"></datalist></div>
     <div><label for="lno">رقم الدرس</label><input id="lno" inputmode="numeric" placeholder="مثال: 5"></div>
     <div><label for="lpg">رقم الصفحة</label><input id="lpg" inputmode="numeric" placeholder="مثال: 13"></div>
-    <div class="w"><label class="axis" for="axis"><span class="axt">محور <small id="axs">OFF</small></span><input id="axis" type="checkbox"><i class="axi"></i></label><div style="color:var(--mute);font-size:.8rem;margin-top:4px">عند التفعيل يبدأ المعلّق بعبارة «مازلنا في محور (العنوان)» بدل «درس اليوم».</div></div>
+    <div class="w"><label for="ttlopt">خيارات العنوان</label><select id="ttlopt"><option value="0">1- درس جديد</option><option value="1">2- مازلنا في درس</option><option value="2">3- محور جديد</option><option value="3">4- مازلنا في محور</option></select></div>
     <div class="w" style="color:var(--mute);font-size:.85rem">عنوان الدرس يُستخرج تلقائيًا من الصورة، ويظهر مع هذه المعلومات في مقدمة الفيديو.</div>
   </div>
   <div class="row"><button id="go" disabled>✨ إنشاء الشرح</button><button class="ghost" id="gear" type="button">⚙️ الإعدادات</button><span id="st"></span></div>
@@ -181,7 +177,8 @@ $("f").onchange=async e=>{
   $("go").disabled=!imgs.length;
 };
 
-(()=>{const a=$("axis"),l=$("axs");try{a.checked=localStorage.getItem("axis")==="1"}catch(e){}const u=()=>{l.textContent=a.checked?"ON":"OFF";try{localStorage.setItem("axis",a.checked?"1":"0")}catch(e){}};a.onchange=u;u()})();
+(()=>{const o=$("ttlopt");try{o.value=localStorage.getItem("ttlopt")||"0"}catch(e){}o.onchange=()=>{try{localStorage.setItem("ttlopt",o.value)}catch(e){}}})();
+const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","محور جديد هو","مازلنا في محور"];
 // ---- تحليل الدرس ----
 $("go").onclick=async()=>{
   $("msg").textContent="";$("go").disabled=true;
@@ -193,7 +190,7 @@ $("go").onclick=async()=>{
 حلّل الدرس ثم اشرحه لتلميذ بالدارجة الجزائرية البسيطة والودودة (كما يكلّم معلم جزائري تلاميذ الابتدائي، مع إبقاء المصطلحات الرياضية المعتادة في المدرسة الجزائرية) في ${LEN[$("len").value]} متسلسلة (مقدمة، ثم الأفكار، ثم الأمثلة، ثم خلاصة).
 كل خطوة تشير إلى موضع محدد في الصورة (كلمة أو شكل أو جملة أو تمرين).
 المادة المُدخلة: ${$("sub").value.trim()||"غير محددة"}.
-${$("axis").checked?"هذا الدرس مكمّل لمحور بدأناه من قبل: في أول خطوة (المقدمة) لا تبدأ بعبارة «درس اليوم» ولا «اليوم راح ندرسو»، بل ابدأ بعبارة «مازلنا في محور» ثم اذكر عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ثم أكمل المقدمة.\n":""}إن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام، وتجاوز العدد المذكور أعلاه:
+في أول خطوة (المقدمة) انطق عنوان الدرس بهذه الصيغة بالضبط: «${TOPT[+$("ttlopt").value]}» ثم عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ولا تستعمل صيغة افتتاح أخرى مثل «درس اليوم»، ثم أكمل المقدمة.\nإن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام، وتجاوز العدد المذكور أعلاه:
 (1) غطِّ كل المفردات والجمل والعبارات الظاهرة في الصفحة دون إهمال أي منها، بمعدل 3 إلى 5 عناصر في كل خطوة، فتكون الخطوات من 10 إلى 20.
 (2) في say اكتب الكلمة أو الجملة الأجنبية بحروفها اللاتينية كما في الكتاب داخل كلام بالدارجة: انطقها أولًا، ثم اشرح معناها بالدارجة، ثم أعدها مرة ثانية ليحفظها الطفل، واطلب منه الترديد معك (مثل: «عاود معايا»).
 (3) شرح المعاني والقواعد بالدارجة الجزائرية فقط، أما الكلمات والجمل الأجنبية فتبقى بلغتها الأصلية دون نقلها إلى الحروف العربية.
