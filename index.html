@@ -54,6 +54,7 @@ button:disabled{opacity:.45;cursor:default}
 #fl b{color:#047857;font-size:calc(var(--iw)*.03);padding:0 calc(var(--iw)*.005);border-radius:calc(var(--iw)*.01);box-shadow:0 0 0 2px #059669}
 #fl i{color:#e11d48;font-size:calc(var(--iw)*.026);padding:0 calc(var(--iw)*.006);border-radius:calc(var(--iw)*.008)}
 #set h2{margin:0 0 4px}#set h3{margin:20px 0 8px;font-size:1rem}
+.kta{width:100%;font:inherit;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);white-space:pre;overflow-x:auto;resize:vertical;line-height:1.8}.kta:not(.show){-webkit-text-security:disc;text-security:disc}.kmeta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 12px;color:var(--mute);font-size:.85rem}
 .kr{display:flex;gap:6px;margin-bottom:8px}.kr input{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
 #lgp{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
 .fld{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.fld label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:4px}
@@ -70,7 +71,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.3</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.4</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -92,10 +93,10 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <section id="set" class="card hide">
   <h2>⚙️ الإعدادات</h2>
   <h3>🔑 مفاتيح Gemini (تحليل الدرس والنصوص)</h3>
-  <div id="kl_t"></div><button class="ghost" type="button" data-add="t">＋ إضافة مفتاح</button>
+  <textarea id="kl_t" class="kta" rows="3" dir="ltr" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="الصق المفاتيح هنا، مفتاح في كل سطر"></textarea><div class="kmeta"><span id="kc_t"></span><button class="ghost" type="button" data-show="kl_t">👁 إظهار</button></div>
   <h3>🎙 مفاتيح Gemini (إنشاء الصوت)</h3>
-  <div id="kl_a"></div><button class="ghost" type="button" data-add="a">＋ إضافة مفتاح</button>
-  <p class="sub">عند وجود عدة مفاتيح ينتقل التطبيق تلقائيًا إلى التالي إن نفدت حصة أحدها. إن تركت مفاتيح الصوت فارغة استُعملت مفاتيح التحليل.</p>
+  <textarea id="kl_a" class="kta" rows="3" dir="ltr" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="الصق المفاتيح هنا، مفتاح في كل سطر"></textarea><div class="kmeta"><span id="kc_a"></span><button class="ghost" type="button" data-show="kl_a">👁 إظهار</button></div>
+  <p class="sub">اكتب مفتاحًا واحدًا في كل سطر. عند وجود عدة مفاتيح ينتقل التطبيق تلقائيًا إلى التالي إن نفدت حصة أحدها. إن تركت مفاتيح الصوت فارغة استُعملت مفاتيح التحليل.</p>
   <h3>🖼 شعار القناة (اختياري، يظهر أعلى يمين الفيديو)</h3>
   <div class="row"><label class="drop" for="lgf" style="flex:1;margin:0">اضغط لرفع صورة الشعار<input id="lgf" type="file" accept="image/*" hidden></label><img id="lgp" class="hide" alt="الشعار"><button class="ghost hide" id="lgx" type="button">إزالة</button></div>
   <h3>🧠 النماذج</h3>
@@ -331,12 +332,10 @@ $("snd").onchange=()=>{if(cur>=0)show(cur)};
 $("nw").onclick=()=>{stopAll();renderProjects();$("player").classList.add("hide");$("up").classList.remove("hide")};
 // ---- الإعدادات ----
 function saveKeys(){try{localStorage.setItem("kt",JSON.stringify(KEYS.t));localStorage.setItem("ka",JSON.stringify(KEYS.a))}catch(e){}}
-function renderKeys(){["t","a"].forEach(k=>{const box=$("kl_"+k);box.innerHTML="";if(!KEYS[k].length)KEYS[k]=[""];
-  KEYS[k].forEach((v,i)=>{const r=document.createElement("div");r.className="kr";const inp=document.createElement("input");
-    inp.type="password";inp.dir="ltr";inp.autocomplete="off";inp.placeholder="AIza...";inp.value=v;inp.oninput=()=>{KEYS[k][i]=inp.value;saveKeys()};
-    const x=document.createElement("button");x.className="ghost";x.type="button";x.textContent="✕";x.onclick=()=>{KEYS[k].splice(i,1);saveKeys();renderKeys()};
-    r.append(inp,x);box.appendChild(r)})})}
-document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{KEYS[b.dataset.add].push("");renderKeys()});
+function kc(k){const n=K(k).length;$("kc_"+k).textContent=n?"عدد المفاتيح: "+n:"لا توجد مفاتيح"}
+function renderKeys(){["t","a"].forEach(k=>{$("kl_"+k).value=KEYS[k].map(x=>String(x).trim()).filter(Boolean).join("\n");kc(k)})}
+["t","a"].forEach(k=>{$("kl_"+k).oninput=()=>{KEYS[k]=$("kl_"+k).value.split(/[\s,;]+/).filter(Boolean);saveKeys();kc(k)}});
+document.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{const on=$(b.dataset.show).classList.toggle("show");b.textContent=on?"🙈 إخفاء":"👁 إظهار"});
 function setLogo(url){const g=$("lgp"),x=$("lgx");if(!url){LOGO.el=null;g.classList.add("hide");x.classList.add("hide");return}
   const e=new Image();e.onload=()=>{LOGO.el=e;g.src=url;g.classList.remove("hide");x.classList.remove("hide")};e.src=url}
 $("lgf").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();
