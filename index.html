@@ -70,7 +70,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.2</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.3</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -518,9 +518,10 @@ function ensurePub(){let d=$("pub");if(d)return d;d=document.createElement("div"
   <div class="row"><button class="ghost" id="pcD" type="button">نسخ الوصف</button><button class="ghost" id="pg2" type="button">🔄 إعادة التوليد</button><span id="pst"></span></div>`;
   $("vst").parentNode.after(d);
   $("pcT").onclick=()=>copyTxt($("pt").value,$("pcT"));$("pcD").onclick=()=>copyTxt($("pd").value,$("pcD"));$("pg2").onclick=genPub;return d}
-function localPub(f){const L=f.lvl||"",S=f.sub||"",T=title||"الدرس",n=f.no;
+function pubTitle(f,fb){const S=(f.sub||"").trim(),L=(f.lvl||"").trim(),p=String(f.lpg||"").replace(/\D/g,""),a=[];if(S)a.push("درس "+S);if(L)a.push(L);if(p)a.push("ص"+p.padStart(2,"0"));if(title)a.push(title);return a.length>=2?a.join(" | ").slice(0,100):fb}
+function localPub(f){const L=f.lvl||"",S=f.sub||"",T=title||"الدرس",n=f.lno;
   return{title:("شرح درس "+T+(S||L?" | "+(S+" "+L).trim():"")).slice(0,100),
-  description:"في هذا الفيديو نشرح "+T+(S?" في مادة "+S:"")+(L?" لتلاميذ "+L:"")+" خطوة بخطوة بأسلوب بسيط وممتع.\n"+(n?"الدرس رقم "+n+(f.pg?" - الصفحة "+f.pg:"")+"\n":"")+"سيفهم الطفل الدرس ويتدرب على التمارين مع الشرح.\nمناسب للتلاميذ وأولياء الأمور.\nلا تنسَ الاشتراك في قناة دروس الابتدائي والإعجاب بالفيديو وكتابة تعليقك ومشاركته مع أصدقائك.",
+  description:"في هذا الفيديو نشرح "+T+(S?" في مادة "+S:"")+(L?" لتلاميذ "+L:"")+" خطوة بخطوة بأسلوب بسيط وممتع.\n"+(n?"الدرس رقم "+n+(f.lpg?" - الصفحة "+f.lpg:"")+"\n":"")+"سيفهم الطفل الدرس ويتدرب على التمارين مع الشرح.\nمناسب للتلاميذ وأولياء الأمور.\nلا تنسَ الاشتراك في قناة دروس الابتدائي والإعجاب بالفيديو وكتابة تعليقك ومشاركته مع أصدقائك.",
   chapters:steps.map(x=>String(x.say||"").split(/\s+/).slice(0,4).join(" ")),
   hashtags:[S,L,"الجزائر","التعليم الابتدائي","شرح الدروس","دروس الابتدائي","المنهاج الجزائري",T].filter(Boolean).map(h=>"#"+String(h))}}
 let pubBusy=false;
@@ -532,7 +533,7 @@ async function genPub(){if(!steps.length||pubBusy)return;pubBusy=true;ensurePub(
     const fmt=t=>{t=Math.round(t);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")};
     const lines=["00:00 المقدمة"];let last=0;(a.chapters||[]).forEach((c,i)=>{const st=T.starts[i];if(st==null||!c)return;if(st-last>=10){lines.push(fmt(st)+" "+String(c).trim());last=st}});
     const tags=[...new Set((a.hashtags||[]).map(h=>"#"+String(h).replace(/^#+/,"").trim().replace(/\s+/g,"_")))].slice(0,15);
-    $("pt").value=String(a.title||"").trim();
+    $("pt").value=pubTitle(f,String(a.title||"").trim());
     $("pd").value=String(a.description||"").trim()+(lines.length>=3?"\n\n⏱ فصول الفيديو:\n"+lines.join("\n"):"")+"\n\n"+tags.join(" ");
     $("pst").textContent=fb?"⚠️ تعذّر الاتصال بالنموذج ("+fb.slice(0,70)+") فتم إنشاء نسخة جاهزة محلياً، عدّلها أو أعد التوليد.":""}catch(e){$("pst").textContent="تعذّر التوليد: "+(e.message||e)}
   pubBusy=false}
