@@ -80,7 +80,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.0</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.1</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -143,9 +143,15 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const TM=()=>($("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
+let TMO=null,OVMSG="",SLK=1;const TM=()=>(TMO||$("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
 async function fetchT(u,o,ms){const c=new AbortController(),tm=setTimeout(()=>c.abort(),ms||120000);try{return await fetch(u,{...o,signal:c.signal})}catch(e){if(e.name==="AbortError"){const x=new Error("انتهت مهلة الانتظار ("+Math.round((ms||120000)/1000)+" ث). Gemini بطيء الآن؛ أعد المحاولة بعد قليل أو جرّب نموذجًا أسرع في خانة «النموذج» بالإعدادات.");x.retry=false;throw x}const x=new Error("تعذّر الاتصال بالخادم: "+(e.message||e));x.retry=true;throw x}finally{clearTimeout(tm)}}
-const keyErr=(st,m)=>{const e=new Error(m);e.retry=[401,403,429,500,503].includes(st);return e};
+const keyErr=(st,m)=>{const e=new Error(m);e.retry=[401,403,429,500,503].includes(st);e.overload=st===503||st===429||/high demand|overloaded|UNAVAILABLE/i.test(m||"");return e};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms*SLK));
+async function overloadRetry(fn,noFb){const D=[6000,15000];let i=0,fb=false;
+  for(;;){try{return await fn()}catch(e){if(!e.overload)throw e;
+    if(i<D.length){OVMSG="النموذج مزدحم، إعادة المحاولة بعد "+D[i]/1000+" ث";await sleep(D[i]);OVMSG="";i++;continue}
+    if(!noFb&&!fb){fb=true;i=0;TMO=TM()==="gemini-3.5-flash-lite"?"gemini-3.8-flash":"gemini-3.5-flash-lite";OVMSG="جارٍ المحاولة بنموذج بديل: "+TMO;continue}
+    throw e}}}
 let kRot=0;
 async function useKeys(list,fn,st){const L=list.slice();if(!L.length)throw new Error("لا توجد مفاتيح، أضفها من الإعدادات ⚙️.");let last;
   for(let n=0;n<L.length;n++){const k=L[((st==null?kRot:st)+n)%L.length];
@@ -193,7 +199,7 @@ const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","
 // ---- تحليل الدرس ----
 $("go").onclick=async()=>{
   $("msg").textContent="";$("go").disabled=true;
-  const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس... '+Math.round((Date.now()-_t0)/1000)+" ث"},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
+  const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس... '+Math.round((Date.now()-_t0)/1000)+" ث"+(OVMSG?" — "+OVMSG:"")},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
   try{
     if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
     const LEN={s:"5 إلى 6 خطوات",m:"7 إلى 9 خطوات",l:"10 إلى 13 خطوة مع تفصيل أكبر لكل مثال"};
@@ -217,7 +223,7 @@ $("go").onclick=async()=>{
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
 - نوّع الأدوات. image هو رقم الصورة.`;
     const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-    let r,j;const T0=Date.now();for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>500000)break;r=await useKeys(K("t"),async key=>{let r;
+    let r,j;const T0=Date.now();TMO=null;for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>500000)break;r=await overloadRetry(()=>useKeys(K("t"),async key=>{let r;
     if(!key.startsWith("sk-ant-")){
       const parts=[];
       for(const i of imgs)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
@@ -239,18 +245,18 @@ $("go").onclick=async()=>{
       if(!resp.ok)throw keyErr(resp.status,resp.status===401?"المفتاح غير صحيح.":(d.error&&d.error.message)||"خطأ من الخادم.");
       r={text:d.content.map(c=>c.text||"").join("")};
     }
-    return r});
+    return r}));
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>f&&{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length){t.tts=t.say;t.tts0=t.say}
       t.jumps=(Array.isArray(t.jumps)?t.jumps:[]).map(q=>q&&{x1:+q.x1,x2:+q.x2,y:+q.y,text:q.text}).filter(q=>q&&isFinite(q.x1)&&isFinite(q.x2)&&isFinite(q.y))});
-    snapAll();curDia="dz";audioDia=null;OUT.buf=OUT.url=OUT.wav=OUT.sig=null;
+    const usedAlt=TMO;TMO=null;OVMSG="";snapAll();curDia="dz";audioDia=null;OUT.buf=OUT.url=OUT.wav=OUT.sig=null;
     if(!steps.length) throw new Error("لم أستطع فهم الدرس، جرّب صورة أوضح.");
     curPid="p"+Date.now().toString(36);await saveProject();
-    start();
+    start();if(usedAlt)$("msg").textContent="ملاحظة: النموذج المحدد كان مزدحمًا، فتم التحليل بالنموذج البديل "+usedAlt+".";
   }catch(e){
-    $("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":(e.message||"حدث خطأ، حاول مرة أخرى.");
+    TMO=null;OVMSG="";$("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":((e.overload?"النموذج مزدحم عند Google حاليًا (ليس خللًا في التطبيق) وفشلت المحاولات التلقائية، جرّب بعد دقائق أو بدّل النموذج من الإعدادات.\n":"")+(e.message||"حدث خطأ، حاول مرة أخرى."));
   }
   clearInterval(_iv);$("st").textContent="";$("go").disabled=false;
 };
@@ -388,7 +394,7 @@ function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const st=t.sear
   return JSON.parse(o)}
 async function llmJson(prompt,st,mdl){
   if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
-  let lastE;for(let at=0;at<2;at++){let t=await useKeys(K("t"),async key=>{let t;
+  let lastE;for(let at=0;at<2;at++){let t=await overloadRetry(()=>useKeys(K("t"),async key=>{let t;
   if(!key.startsWith("sk-ant-")){
     const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+(mdl||TM())+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},150000);
@@ -399,7 +405,7 @@ async function llmJson(prompt,st,mdl){
       body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:6000,messages:[{role:"user",content:prompt}]})},150000);
     const d=await resp.json();if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من الخادم.");
     t=d.content.map(c=>c.text||"").join("")}
-  return t},st);
+  return t},st),true);
   try{if(!String(t).trim())throw new Error("ردّ فارغ من النموذج");return parseJ(t)}catch(e){lastE=e}}
   throw lastE}
 async function applyDialect(){
