@@ -53,6 +53,7 @@ button:disabled{opacity:.45;cursor:default}
 #fl .kl{position:absolute;box-sizing:border-box;background:rgba(253,224,71,.55);border:3px solid #f59e0b;border-radius:6px;pointer-events:none;opacity:0;animation:klIn .15s var(--d) both,klSweep var(--t) var(--d) linear both,klOff .4s calc(var(--d) + var(--t)) forwards}
 @keyframes klIn{from{opacity:0}to{opacity:1}}@keyframes klSweep{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes klOff{to{opacity:0}}
 #fl b.ans{animation:ansIn .25s var(--d) both,ansClip var(--t) calc(var(--d) + .15s) both linear,ansOut .9s calc(var(--d) + .15s + var(--t) + 3.2s) forwards;opacity:0;font-family:Caveat,"Playpen Sans Arabic",Cairo,sans-serif;color:#047857;border:3px solid #059669;border-radius:10px;padding:0 .3em;clip-path:inset(0 100% 0 0)}
+#fl b.ans.tick{border:0;background:transparent;color:#059669;padding:0;min-width:0;line-height:1}
 #fl b.ans.ar{direction:rtl;clip-path:inset(0 0 0 100%);animation-name:ansIn,ansClipR,ansOut}
 #fl svg.fing{position:absolute;height:auto;pointer-events:none;opacity:0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));animation:fingIn .7s calc(var(--d) - .7s) both,fingOut .5s calc(var(--d) + .15s + var(--t) + .5s) forwards;--ox:7%;--oy:9%}
 @keyframes ansIn{from{opacity:0}to{opacity:1}}@keyframes ansOut{to{opacity:0}}
@@ -80,7 +81,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.1</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.2</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -134,7 +135,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
     <select id="res" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="1920">1080p</option><option value="1280">720p</option></select>
     
     <button class="ghost" id="fs">⛶ ملء الشاشة</button>
-    <input id="dia" type="hidden" value="dz"><span class="chk">🗣 الدارجة الجزائرية</span><select id="mdl" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="gemini-3.1-flash-tts-preview">Gemini 3.1 TTS — الافتراضي</option><option value="gemini-3.8-flash-tts">Gemini 3.8 TTS — جديد</option><option value="gemini-2.5-flash-preview-tts">Gemini 2.5 TTS</option></select><select id="gv" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)" title="صوت جوجل"><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Aoede">Aoede</option><option value="Zephyr">Zephyr</option><option value="Fenrir">Fenrir</option><option value="Leda">Leda</option><option value="Orus">Orus</option><option value="Sulafat">Sulafat</option><option value="Gacrux">Gacrux</option></select><select id="tsh" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="light">تشكيل خفيف</option><option value="none">بلا تشكيل</option><option value="full">تشكيل كامل</option></select><button id="ga">🎙 إنشاء الصوت</button>
+    <input id="dia" type="hidden" value="dz"><span class="chk">🗣 الدارجة الجزائرية</span><select id="mdl" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="gemini-3.1-flash-tts-preview">Gemini 3.1 TTS — الافتراضي (مجرَّب)</option><option value="gemini-3.8-flash-tts">Gemini 3.8 TTS — جديد</option><option value="gemini-2.5-flash-preview-tts">Gemini 2.5 TTS</option></select><select id="gv" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)" title="صوت جوجل"><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Aoede">Aoede</option><option value="Zephyr">Zephyr</option><option value="Fenrir">Fenrir</option><option value="Leda">Leda</option><option value="Orus">Orus</option><option value="Sulafat">Sulafat</option><option value="Gacrux">Gacrux</option></select><select id="tsh" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="light">تشكيل خفيف</option><option value="none">بلا تشكيل</option><option value="full">تشكيل كامل</option></select><button id="ga">🎙 إنشاء الصوت</button>
     <button class="ghost" id="da" disabled>⬇ تحميل الصوت WAV</button>
     <button class="ghost" id="pb">📝 العنوان والوصف</button><button class="ghost" id="cv">🖼 تحميل الغلاف</button><button class="ghost" id="dv">🎬 تحميل الفيديو مع الصوت</button><button class="ghost hide" id="cx">✖ إلغاء التسجيل</button>
     <span id="vst" style="color:var(--mute)"></span>
@@ -214,11 +215,11 @@ $("go").onclick=async()=>{
 (4) اجعل pause بين 2 و3 بعد كل مجموعة ليردد الطفل.
 تجاهل تمامًا أي علامة مائية أو توقيع أو خطوط ودوائر مرسومة باليد فوق الصفحة، ولا تعتبرها جزءًا من الدرس ولا تقرأها.
 أعد JSON فقط بلا أي نص آخر ولا علامات markdown بهذا الشكل:
-{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
+{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"when":"نكتب هنا","text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
 - box أرقام عشرية من 0 إلى 1: x,y الزاوية العليا اليسرى و w,h العرض والارتفاع، نسبةً إلى أبعاد الصورة. اجعله ضيقًا ومحكمًا حول عنصر واحد فقط، ولا تدمج عنصرين متباعدين أو شخصية مع تمرين. إن كانت الخطوة عامة استعمل null. اترك هامشًا صغيرًا حول العنصر.
 - tool واحدة من: circle (دائرة)، underline (خط تحت الكلمة)، rect (مستطيل)، highlight (تظليل)، arrow (سهم).
-- fills: استعمله في كل تمرين فيه فراغ أو مكان للإجابة داخل box: حرف ناقص، كلمة، عدد، علامة (> < = + -)، جملة تُرتَّب كلماتها، خانة أو سطر للكتابة، أو إكمال جملة. لكل فراغ عنصر: x,y مركز الفراغ بدقة (من 0 إلى 1 نسبةً للصورة كلها وليس لـ box)، وtext الجواب الصحيح فقط كما يُكتب في الفراغ (قصير: حرف أو كلمة أو عدد أو علامة؛ وفي الترتيب الجملة مرتبة)، وw عرض الفراغ تقريبًا نسبةً لعرض الصورة. ضع من فراغ إلى ثلاثة في الخطوة الواحدة، واطرح السؤال في say ثم انطق الجواب. احسب الجواب بدقة ولا تخمّن، وإن لم تتأكد منه فلا تضع fills.
-- song اختياري: إن وجدت في الصفحة أغنية أو نشيدًا أو قافية (مثل I sing and have fun) فاجعل أول خطوة لها خطوة أغنية: say هو نص الأغنية كاملًا بلغتها الأصلية كما هو مكتوب، سطر في كل سطر، بلا ترجمة ولا إضافة؛ وbox يحيط بنص الأغنية كلها؛ وsong مصفوفة بسطور الأغنية بالترتيب الذي تُغنّى به، لكل سطر text وbox ضيق حول ذلك السطر وحده (من 0 إلى 1 نسبةً للصورة). إن تكرر مقطع في الصفحة فاذكره مرة واحدة. بعد خطوة الأغنية تابع الشرح العادي.
+- fills: استعمله في كل تمرين فيه فراغ أو مكان للإجابة داخل box: حرف ناقص، كلمة، عدد، علامة (> < = + -)، جملة تُرتَّب كلماتها، خانة أو سطر للكتابة، أو إكمال جملة. لكل فراغ عنصر: x,y مركز الفراغ بدقة (من 0 إلى 1 نسبةً للصورة كلها وليس لـ box)، وtext الجواب الصحيح فقط كما يُكتب في الفراغ (قصير: حرف أو كلمة أو عدد أو علامة؛ وفي الترتيب الجملة مرتبة)، وw عرض الفراغ تقريبًا نسبةً لعرض الصورة، وwhen عبارة قصيرة (من 2 إلى 5 كلمات) منسوخة حرفيًا من say تُنطق في اللحظة التي يجب أن تظهر فيها هذه الإجابة، مثل «نضع علامة صح» أو «نكتب هنا» أو الكلمة المطلوبة نفسها (يجب أن تُنطق قبل الجواب أو معه، وبنفس ترتيب الفراغات). لخانة يوضع فيها علامة صح اجعل text هو ✓ فقط. ضع من فراغ إلى ثلاثة في الخطوة الواحدة، واطرح السؤال في say ثم انطق الجواب. احسب الجواب بدقة ولا تخمّن، وإن لم تتأكد منه فلا تضع fills.
+- song اختياري: إن وجدت في الصفحة أغنية أو نشيدًا أو قافية (مثل I sing and have fun) فاجعل أول خطوة لها خطوة أغنية: say هو نص الأغنية كاملًا بلغتها الأصلية كما هو مكتوب، سطر في كل سطر، بلا ترجمة ولا إضافة؛ وbox يحيط بنص الأغنية كلها؛ وsong مصفوفة بسطور الأغنية بالترتيب الذي تُغنّى به. إن كانت الأغنية موزعة في عمودين فالأبيات تُقرأ صفًّا صفًّا: النصف الأيسر ثم الأيمن من الصف الأول، ثم الصف الثاني، وهكذا، وليس عمودًا كاملًا ثم العمود الآخر. لكل نصف سطر text وbox ضيق حوله وحده (من 0 إلى 1 نسبةً للصورة). إن تكرر مقطع في الصفحة فاذكره مرة واحدة. بعد خطوة الأغنية تابع الشرح العادي.
 - jumps اختياري: لكل قفزة على شريط عددي: x1 و x2 موضع علامتي البداية والنهاية، و y ارتفاع الخط، و text مقدار القفزة مثل +36.
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
 - نوّع الأدوات. image هو رقم الصورة.`;
@@ -248,8 +249,10 @@ $("go").onclick=async()=>{
     return r}));
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
-    steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>f&&{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
-      t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length){t.tts=t.say;t.tts0=t.say}
+    steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>{if(!f)return f;const wt=z=>{let n=0;for(const c of z)n+=/[.,!?؟،:؛]/.test(c)?8:1;return n},sy=String(t.say||""),wh=String(f.when||""),ix=wh?sy.indexOf(wh):-1,ix2=ix<0&&f.text?sy.indexOf(String(f.text)):-1,pi=ix>=0?ix:ix2,pl=ix>=0?wh.length:ix2>=0?String(f.text).length:0;return{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text,pos:pi>=0&&sy?Math.min(.98,Math.max(.02,(wt(sy.slice(0,pi))+wt(sy.slice(pi,pi+pl))/2)/wt(sy))):null}}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
+      t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length>1){const hs=t.song.map(l=>l.box[3]).sort((a,b)=>a-b),mh=hs[hs.length>>1]||.02,yc=l=>l.box[1]+l.box[3]/2,rows=[];[...t.song].sort((a,b)=>yc(a)-yc(b)).forEach(l=>{const r=rows.find(R=>Math.abs(R.y-yc(l))<mh*.6);if(r){r.items.push(l);r.y=(r.y*(r.items.length-1)+yc(l))/r.items.length}else rows.push({y:yc(l),items:[l]})});
+        rows.sort((a,b)=>a.y-b.y);rows.forEach(R=>R.items.sort((a,b)=>a.box[0]-b.box[0]));t.song=rows.flatMap(R=>R.items);t.say=rows.map(R=>R.items.map(l=>l.text).join(" ")).join("\n")}
+      if(t.song.length){t.say0=t.say;t.tts=t.say;t.tts0=t.say}
       t.jumps=(Array.isArray(t.jumps)?t.jumps:[]).map(q=>q&&{x1:+q.x1,x2:+q.x2,y:+q.y,text:q.text}).filter(q=>q&&isFinite(q.x1)&&isFinite(q.x2)&&isFinite(q.y))});
     const usedAlt=TMO;TMO=null;OVMSG="";snapAll();curDia="dz";audioDia=null;OUT.buf=OUT.url=OUT.wav=OUT.sig=null;
     if(!steps.length) throw new Error("لم أستطع فهم الدرس، جرّب صورة أوضح.");
@@ -310,8 +313,9 @@ function extras(i,cu){
       if(q.text!=null)fl.insertAdjacentHTML("beforeend",`<i style="left:${mx*100}%;top:${(q.y-ap-.03)*100}%;${cu?`animation-delay:${d+.5}s`:"animation:none"}">${esc(q.text)}</i>`)});
     if(cu&&(t.song||[]).length){const S=t.song,W=S.map(l=>l.text.length+6),tot=W.reduce((a,b)=>a+b,0),aud=Math.max(3,(t.buf?t.buf.duration:2.5+t.say.length*.06));let c0=GAP0;
       S.forEach((l,q)=>{const d=aud*W[q]/tot,[bx,by,bw,bh]=l.box;fl.insertAdjacentHTML("beforeend",`<div class="kl" style="left:${bx*100}%;top:${by*100}%;width:${bw*100}%;height:${bh*100}%;--d:${c0}s;--t:${d}s"></div>`);c0+=d})}
-    t.fills.forEach((f,k)=>{if(!cu)return;const tx=String(f.text),ar=/[\u0600-\u06FF]/.test(tx),n=t.fills.length,sp=Math.min(1.4,Math.max(.9,5/Math.max(1,n))),s0=1.6+k*sp,dT=Math.max(.6,Math.min(1.8,.11*tx.length));
-      fl.insertAdjacentHTML("beforeend",`<b class="ans${ar?" ar":""}" style="left:${f.x*100}%;top:${f.y*100}%;font-size:calc(var(--iw)*${f.fs*1.12});min-width:calc(var(--iw)*${f.bw*1.05});--d:${s0}s;--t:${dT}s">${esc(f.text)}</b><svg class="fing" viewBox="0 0 64 80" style="left:${f.x*100}%;top:${f.y*100}%;--d:${s0}s;--t:${dT}s;width:calc(var(--iw)*${f.fs*3.6/80*64})"><path d="${HAND_D}" fill="#ffd9b8" stroke="#7a4b2a" stroke-width="2.5" stroke-linejoin="round"/><path d="M30 46V56M38 46V56M46 46V56" stroke="#7a4b2a" stroke-width="2.5" fill="none"/></svg>`)})}
+    const S0d=cu?fillTimes(t,Math.max(2,t.buf?t.buf.duration:2.5+t.say.length*.06)):[];
+    t.fills.forEach((f,k)=>{if(!cu)return;const tx=String(f.text),tick=/^[✓✔√]$/.test(tx.trim()),ar=/[\u0600-\u06FF]/.test(tx),s0=S0d[k],dT=tick?.6:Math.max(.6,Math.min(1.8,.11*tx.length));
+      fl.insertAdjacentHTML("beforeend",`<b class="ans${ar?" ar":""}${tick?" tick":""}" style="left:${f.x*100}%;top:${f.y*100}%;font-size:calc(var(--iw)*${f.fs*(tick?2:1.12)});min-width:calc(var(--iw)*${tick?0:f.bw*1.05});--d:${s0}s;--t:${dT}s">${tick?"✔":esc(f.text)}</b><svg class="fing" viewBox="0 0 64 80" style="left:${f.x*100}%;top:${f.y*100}%;--d:${s0}s;--t:${dT}s;width:calc(var(--iw)*${f.fs*3.6/80*64})"><path d="${HAND_D}" fill="#ffd9b8" stroke="#7a4b2a" stroke-width="2.5" stroke-linejoin="round"/><path d="M30 46V56M38 46V56M46 46V56" stroke="#7a4b2a" stroke-width="2.5" fill="none"/></svg>`)})}
 }
 function say(t){
   clearInterval(typer);const c=$("cap");c.textContent="";let n=0;const ch=[...t];
@@ -373,7 +377,8 @@ $("ck").onclick=()=>{if(!confirm("مسح كل المفاتيح والشعار و
 try{KEYS.t=JSON.parse(localStorage.getItem("kt")||"[]");KEYS.a=JSON.parse(localStorage.getItem("ka")||"[]");
   const old=localStorage.getItem("ak");if(old&&!K("t").length)KEYS.t=[old];
   const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const v=localStorage.getItem("tm")||"";if(v&&![...$("tm").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tm").appendChild(o)}$("tm").value=v};$("tmt").value=localStorage.getItem("tmt")||"";{const v=localStorage.getItem("tmp")||"";if(v&&![...$("tmp").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tmp").appendChild(o)}if(v)$("tmp").value=v}}catch(e){}
-$("dia").value="dz";try{["mdl","tsh","gv"].forEach(k=>{const v=localStorage.getItem(k);if(v)$(k).value=v})}catch(e){}
+$("dia").value="dz";try{if(localStorage.getItem("mdl_v")!=="3"){localStorage.removeItem("mdl");if(/3\.8/.test(localStorage.getItem("tmt")||""))localStorage.removeItem("tmt");localStorage.setItem("mdl_v","3")}}catch(e){}
+try{["mdl","tsh","gv"].forEach(k=>{const v=localStorage.getItem(k);if(v)$(k).value=v})}catch(e){}
 if(!$("mdl").value)$("mdl").selectedIndex=0;
 ["lvl","sub","lno","lpg"].forEach(k=>{try{const v=localStorage.getItem("f_"+k);if(v)$(k).value=v}catch(e){}$(k).addEventListener("input",()=>{try{localStorage.setItem("f_"+k,$(k).value)}catch(e){}})});
 addEventListener("resize",()=>{if(cur>=0&&steps[cur]){const s=steps[cur];layout(imgs[Math.min(imgs.length-1,+s.image||0)],ok(s.box))}});
@@ -661,6 +666,7 @@ function drawPage(x0,c,tx,ty,z,al,lt,tool,sp,ex){
       x0.direction="ltr";x0.font=`700 ${46*f}px ${HL}`;x0.strokeText(MAIL,cx,yy+82*f);x0.fillStyle="#38d6ff";x0.fillText(MAIL,cx,yy+82*f);x0.restore()}}
   if(sp&&ex!=null)drawExtras(x0,c,ex,lt,z);x0.restore()}
 const cl=v=>Math.max(0,Math.min(1,v)),ZIN=1.5,ZD=1;
+function fillTimes(t,aud){const n=t.fills.length;let prev=-9;return t.fills.map((f,k)=>{const b=GAP0+aud*(f.pos!=null?f.pos:.5+.4*k/Math.max(1,n));prev=Math.max(b,prev+1,.9);return prev})}
 const HAND_D="M18 10a6 6 0 0 1 12 0V42H18Z M20 36H48a10 10 0 0 1 10 10V60a10 10 0 0 1-10 10H20a10 10 0 0 1-10-10V46a10 10 0 0 1 10-10Z M10 48a6 8 0 0 1 8-6V58a6 6 0 0 1-8-2Z";
 let CURDUR=8;const HAND=new Path2D(HAND_D);
 function drawExtras(x0,c,i,lt,z){const iw=c.iw,ih=c.ih,s0=steps[i],ga=x0.globalAlpha;x0.save();x0.shadowBlur=0;x0.direction="ltr";x0.textAlign="center";x0.textBaseline="middle";
@@ -676,14 +682,19 @@ function drawExtras(x0,c,i,lt,z){const iw=c.iw,ih=c.ih,s0=steps[i],ga=x0.globalA
       S.forEach((l,q)=>{const d=aud*W[q]/tot,p=cl((lt-c0)/d),on=lt>=c0-.05&&lt<c0+d+.4;c0+=d;if(!on)return;const[bx,by,bw,bh]=l.box,pd=.004*iw,fa=lt<c0?1:1-cl((lt-c0)/.4);
         x0.save();x0.globalAlpha=ga*fa;x0.fillStyle="rgba(253,224,71,.55)";rr(x0,bx*iw-pd,by*ih-pd,bw*iw*p+2*pd*(p>0?1:0),bh*ih+2*pd,6/z);x0.fill();
         x0.strokeStyle="#f59e0b";x0.lineWidth=3/z;rr(x0,bx*iw-pd,by*ih-pd,bw*iw+2*pd,bh*ih+2*pd,6/z);x0.stroke();x0.restore()})}
+    const S0=cu?fillTimes(t,Math.max(2,CURDUR-GAP0-.7-pauseOf(t))):[];
     t.fills.forEach((f,k)=>{if(!cu)return;
-      const n=t.fills.length,sp=Math.min(1.6,Math.max(.9,(CURDUR-3.2)/Math.max(1,n))),s0=1.6+k*sp,txt=String(f.text),ar=/[\u0600-\u06FF]/.test(txt),
-        dT=Math.max(.6,Math.min(1.8,.11*txt.length)),t0=s0+.15,e0=t0+dT+3.2,a=Math.min(eio(cl((lt-s0)/.25)),1-eio(cl((lt-e0)/.9)));
+      const s0=S0[k],txt=String(f.text),tick=/^[✓✔√]$/.test(txt.trim()),ar=/[\u0600-\u06FF]/.test(txt),
+        dT=tick?.6:Math.max(.6,Math.min(1.8,.11*txt.length)),t0=s0+.15,e0=t0+dT+3.5,a=Math.min(eio(cl((lt-s0)/.25)),1-eio(cl((lt-e0)/.9)));
       const fs=(f.fs||.03)*iw*1.12;x0.font=`700 ${fs}px Caveat,'Playpen Sans Arabic',${FT}`;
-      const w=Math.max(x0.measureText(txt).width+.014*iw,(f.bw||0)*iw*1.05),h=Math.max(fs*1.3,(f.bh||0)*ih*1.25),X=f.x*iw,Y=f.y*ih;
-      if(a>0){x0.save();x0.globalAlpha=ga*a;x0.fillStyle="#fff";rr(x0,X-w/2,Y-h/2,w,h,h*.3);x0.fill();x0.strokeStyle="#059669";x0.lineWidth=3/z;x0.stroke();
-        const pr=cl((lt-t0)/dT);x0.beginPath();if(ar)x0.rect(X+w/2-w*pr,Y-h,w*pr,2*h);else x0.rect(X-w/2,Y-h,w*pr,2*h);x0.clip();
-        x0.direction=ar?"rtl":"ltr";x0.fillStyle="#047857";x0.fillText(txt,X,Y+fs*.04);x0.restore()}
+      const w=tick?fs*1.6:Math.max(x0.measureText(txt).width+.014*iw,(f.bw||0)*iw*1.05),h=tick?fs*1.6:Math.max(fs*1.3,(f.bh||0)*ih*1.25),X=f.x*iw,Y=f.y*ih;
+      if(a>0){x0.save();x0.globalAlpha=ga*a;
+        if(tick){const pr=cl((lt-t0)/dT),u=h*.5,P=[[-.55,.0],[-.15,.45],[.6,-.5]];x0.strokeStyle="#059669";x0.lineWidth=Math.max(6/z,fs*.28);x0.lineCap="round";x0.lineJoin="round";x0.beginPath();x0.moveTo(X+P[0][0]*u,Y+P[0][1]*u);
+          const L1=Math.hypot(P[1][0]-P[0][0],P[1][1]-P[0][1]),L2=Math.hypot(P[2][0]-P[1][0],P[2][1]-P[1][1]),d=pr*(L1+L2);
+          if(d<=L1){const q=d/L1;x0.lineTo(X+(P[0][0]+(P[1][0]-P[0][0])*q)*u,Y+(P[0][1]+(P[1][1]-P[0][1])*q)*u)}else{const q=(d-L1)/L2;x0.lineTo(X+P[1][0]*u,Y+P[1][1]*u);x0.lineTo(X+(P[1][0]+(P[2][0]-P[1][0])*q)*u,Y+(P[1][1]+(P[2][1]-P[1][1])*q)*u)}x0.stroke()}
+        else{x0.fillStyle="#fff";rr(x0,X-w/2,Y-h/2,w,h,h*.3);x0.fill();x0.strokeStyle="#059669";x0.lineWidth=3/z;x0.stroke();
+          const pr=cl((lt-t0)/dT);x0.beginPath();if(ar)x0.rect(X+w/2-w*pr,Y-h,w*pr,2*h);else x0.rect(X-w/2,Y-h,w*pr,2*h);x0.clip();
+          x0.direction=ar?"rtl":"ltr";x0.fillStyle="#047857";x0.fillText(txt,X,Y+fs*.04)}x0.restore()}
       const fa=Math.min(eio(cl((lt-(s0-.7))/.4)),1-eio(cl((lt-(t0+dT+.5))/.5)));
       if(fa>0){const m=eio(cl((lt-(s0-.7))/.7)),hs=fs*3.6/80*(1-.12*Math.sin(Math.PI*cl((lt-s0)/.25)));
         x0.save();x0.globalAlpha=ga*fa;x0.shadowColor="rgba(0,0,0,.35)";x0.shadowBlur=10/z;x0.translate(X+(1-m)*.07*iw,Y+h*.62+(1-m)*.09*ih);x0.scale(hs,hs);x0.translate(-24,-4);
