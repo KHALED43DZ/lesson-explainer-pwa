@@ -71,7 +71,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.7</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.8</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -100,7 +100,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
   <h3>🖼 شعار القناة (اختياري، يظهر أعلى يمين الفيديو)</h3>
   <div class="row"><label class="drop" for="lgf" style="flex:1;margin:0">اضغط لرفع صورة الشعار<input id="lgf" type="file" accept="image/*" hidden></label><img id="lgp" class="hide" alt="الشعار"><button class="ghost hide" id="lgx" type="button">إزالة</button></div>
   <h3>🧠 النماذج</h3>
-  <select id="tm" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="">gemini-3.8-flash — الافتراضي</option><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الأسرع</option><option value="gemini-4-argon">gemini-4-argon — الأقوى (مدفوع)</option></select>
+  <select id="tm" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="">gemini-3.8-flash — الافتراضي</option><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الأسرع</option><option value="gemini-4-argon">gemini-4-argon — الأقوى (مدفوع)</option></select><div class="sub" style="margin:2px 0 4px">نموذج تجهيز نص النطق (إعادة كتابة النص للصوت، مهمة بسيطة تكفيها نماذج خفيفة)</div><select id="tmp" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الافتراضي (الأسرع)</option><option value="gemini-3.8-flash">gemini-3.8-flash</option></select>
   <input id="tmt" placeholder="نموذج الصوت (اختياري، يتجاوز القائمة)" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr" autocomplete="off">
   <h3>📏 طول الشرح</h3>
   <div class="row"><select id="len" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="s">شرح مختصر</option><option value="m" selected>شرح متوسط</option><option value="l">شرح مفصّل</option></select></div>
@@ -343,16 +343,16 @@ $("lgf").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createO
     c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,256,256);const d=c.toDataURL("image/png");
     try{localStorage.setItem("logo",d)}catch(x){}setLogo(d)};im.src=u};
 $("lgx").onclick=()=>{try{localStorage.removeItem("logo")}catch(e){}setLogo("");$("lgf").value=""};
-["tm","tmt"].forEach(k=>{$(k).oninput=()=>{try{localStorage.setItem(k,$(k).value)}catch(e){}}});
+["tm","tmt","tmp"].forEach(k=>{$(k).oninput=()=>{try{localStorage.setItem(k,$(k).value)}catch(e){}}});
 $("len").onchange=()=>{try{localStorage.setItem("len",$("len").value)}catch(e){}};
 $("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide");renderKeys()};
 $("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide");$("msg").textContent=""};
 $("ck").onclick=()=>{if(!confirm("مسح كل المفاتيح والشعار والإعدادات المحفوظة؟"))return;
-  try{["kt","ka","ak","ek","vid","logo","mdl","tsh","gv","len","dia","tm","tmt","f_lvl","f_sub","f_lno","f_lpg"].forEach(k=>localStorage.removeItem(k))}catch(e){}
-  KEYS.t=[];KEYS.a=[];$("tm").value=$("tmt").value="";setLogo("");renderKeys()};
+  try{["kt","ka","ak","ek","vid","logo","mdl","tsh","gv","len","dia","tm","tmt","tmp","f_lvl","f_sub","f_lno","f_lpg"].forEach(k=>localStorage.removeItem(k))}catch(e){}
+  KEYS.t=[];KEYS.a=[];$("tm").value=$("tmt").value="";$("tmp").selectedIndex=0;setLogo("");renderKeys()};
 try{KEYS.t=JSON.parse(localStorage.getItem("kt")||"[]");KEYS.a=JSON.parse(localStorage.getItem("ka")||"[]");
   const old=localStorage.getItem("ak");if(old&&!K("t").length)KEYS.t=[old];
-  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const v=localStorage.getItem("tm")||"";if(v&&![...$("tm").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tm").appendChild(o)}$("tm").value=v};$("tmt").value=localStorage.getItem("tmt")||""}catch(e){}
+  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const v=localStorage.getItem("tm")||"";if(v&&![...$("tm").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tm").appendChild(o)}$("tm").value=v};$("tmt").value=localStorage.getItem("tmt")||"";{const v=localStorage.getItem("tmp")||"";if(v&&![...$("tmp").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tmp").appendChild(o)}if(v)$("tmp").value=v}}catch(e){}
 $("dia").value="dz";try{["mdl","tsh","gv"].forEach(k=>{const v=localStorage.getItem(k);if(v)$(k).value=v})}catch(e){}
 if(!$("mdl").value)$("mdl").selectedIndex=0;
 ["lvl","sub","lno","lpg"].forEach(k=>{try{const v=localStorage.getItem("f_"+k);if(v)$(k).value=v}catch(e){}$(k).addEventListener("input",()=>{try{localStorage.setItem("f_"+k,$(k).value)}catch(e){}})});
@@ -372,11 +372,11 @@ function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const st=t.sear
   let o="",q=false,esc=false;for(const ch of t){if(q){if(esc){o+=ch;esc=false}else if(ch==="\\"){o+=ch;esc=true}else if(ch==='"'){o+=ch;q=false}else if(ch==="\n"){o+="\\n"}else if(ch==="\r"||ch==="\t"){o+=" "}else o+=ch}else{if(ch==='"'){q=true;o+=ch}else if(ch==="\u201C"||ch==="\u201D"){q=true;o+='"'}else o+=ch}}
   o=o.replace(/,\s*([}\]])/g,"$1").replace(/([{,]\s*)([A-Za-z_][\w]*)\s*:/g,'$1"$2":');
   return JSON.parse(o)}
-async function llmJson(prompt,st){
+async function llmJson(prompt,st,mdl){
   if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
   let lastE;for(let at=0;at<2;at++){let t=await useKeys(K("t"),async key=>{let t;
   if(!key.startsWith("sk-ant-")){
-    const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
+    const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+(mdl||TM())+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},150000);
     const d=await resp.json();if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من خادم Gemini.");
     t=((d.candidates&&d.candidates[0]&&d.candidates[0].content.parts)||[]).map(p=>p.text||"").join("")
@@ -457,10 +457,10 @@ async function ensureTashkeel(){
 اكتب الأرقام والرموز الحسابية حروفًا كما يقولها معلم جزائري (مثل: + زايد، - ناقص، = يعطي). لا تغيّر المعنى ولا تضف ولا تحذف جملًا.
 أعد JSON فقط: مصفوفة نصوص بنفس الترتيب والعدد.
 النصوص: ${JSON.stringify(arr)}`;
-    const h=Math.ceil(idx.length/2),parts=[idx.slice(0,h),idx.slice(h)].filter(x=>x.length);
-    const res=await Promise.all(parts.map((pp,k)=>llmJson(mk(pp.map(i=>steps[i].say)),k)));
-    res.forEach((a,k)=>{const pp=parts[k];if(!Array.isArray(a)||a.length!==pp.length)throw new Error("نتيجة غير صالحة من النموذج.");
-      pp.forEach((i,j)=>{const t=String(a[j]&&typeof a[j]==="object"?(a[j].tts||a[j].text||""):a[j]);if(t.trim()){const o=steps[i];o.tts=t;o.ttsMode=m;o.buf=o.url=o.wav=null;o.sig=null}})})}
+    const parts=[];for(let q=0;q<idx.length;q+=3)parts.push(idx.slice(q,q+3));let done=0,nx=0;const PM=$("tmp").value||"gemini-3.5-flash-lite",prog=()=>vst("جارٍ تجهيز نص النطق... "+done+" من "+parts.length);prog();
+    const runPart=async(pp,k)=>{const a=await llmJson(mk(pp.map(i=>steps[i].say)),k,PM);if(!Array.isArray(a)||a.length!==pp.length)throw new Error("نتيجة غير صالحة من النموذج.");
+      pp.forEach((i,j)=>{const t=String(a[j]&&typeof a[j]==="object"?(a[j].tts||a[j].text||""):a[j]);if(t.trim()){const o=steps[i];o.tts=t;o.ttsMode=m;o.buf=o.url=o.wav=null;o.sig=null}});done++;prog()};
+    await Promise.all(Array.from({length:Math.min(4,parts.length)},async()=>{while(nx<parts.length){const k=nx++;await runPart(parts[k],k)}}))}
   let d=$("ttd");if(!d){d=document.createElement("details");d.id="ttd";d.style.cssText="margin-top:10px";d.innerHTML='<summary>النص المُرسل للصوت</summary><div id="ttb" style="white-space:pre-wrap;line-height:2;font-size:1.05rem"></div>';$("vst").parentNode.after(d)}
   $("ttb").textContent=steps.map((s,i)=>(i+1)+". "+(s.tts||s.say)).join("\n")}
 let TTS38="sys";
