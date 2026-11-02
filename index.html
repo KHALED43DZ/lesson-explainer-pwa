@@ -71,7 +71,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.5</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.6</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -100,7 +100,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
   <h3>🖼 شعار القناة (اختياري، يظهر أعلى يمين الفيديو)</h3>
   <div class="row"><label class="drop" for="lgf" style="flex:1;margin:0">اضغط لرفع صورة الشعار<input id="lgf" type="file" accept="image/*" hidden></label><img id="lgp" class="hide" alt="الشعار"><button class="ghost hide" id="lgx" type="button">إزالة</button></div>
   <h3>🧠 النماذج</h3>
-  <input id="tm" placeholder="نموذج التحليل (الافتراضي: gemini-3.8-flash)" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr" autocomplete="off">
+  <select id="tm" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="">gemini-3.8-flash — الافتراضي</option><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الأسرع</option><option value="gemini-4-argon">gemini-4-argon — الأقوى (مدفوع)</option></select>
   <input id="tmt" placeholder="نموذج الصوت (اختياري، يتجاوز القائمة)" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr" autocomplete="off">
   <h3>📏 طول الشرح</h3>
   <div class="row"><select id="len" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="s">شرح مختصر</option><option value="m" selected>شرح متوسط</option><option value="l">شرح مفصّل</option></select></div>
@@ -125,7 +125,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
     <select id="res" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="1920">1080p</option><option value="1280">720p</option></select>
     
     <button class="ghost" id="fs">⛶ ملء الشاشة</button>
-    <input id="dia" type="hidden" value="dz"><span class="chk">🗣 الدارجة الجزائرية</span><select id="mdl" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="gemini-3.1-flash-tts-preview">Google Gemini 3.1 TTS</option><option value="gemini-2.5-flash-preview-tts">Google Gemini 2.5 TTS</option></select><select id="gv" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)" title="صوت جوجل"><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Aoede">Aoede</option><option value="Zephyr">Zephyr</option><option value="Fenrir">Fenrir</option><option value="Leda">Leda</option><option value="Orus">Orus</option><option value="Sulafat">Sulafat</option><option value="Gacrux">Gacrux</option></select><select id="tsh" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="light">تشكيل خفيف</option><option value="none">بلا تشكيل</option><option value="full">تشكيل كامل</option></select><button id="ga">🎙 إنشاء الصوت</button>
+    <input id="dia" type="hidden" value="dz"><span class="chk">🗣 الدارجة الجزائرية</span><select id="mdl" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="gemini-3.1-flash-tts-preview">Gemini 3.1 TTS — الافتراضي</option><option value="gemini-3.8-flash-tts">Gemini 3.8 TTS — جديد</option><option value="gemini-2.5-flash-preview-tts">Gemini 2.5 TTS</option></select><select id="gv" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)" title="صوت جوجل"><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Aoede">Aoede</option><option value="Zephyr">Zephyr</option><option value="Fenrir">Fenrir</option><option value="Leda">Leda</option><option value="Orus">Orus</option><option value="Sulafat">Sulafat</option><option value="Gacrux">Gacrux</option></select><select id="tsh" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="light">تشكيل خفيف</option><option value="none">بلا تشكيل</option><option value="full">تشكيل كامل</option></select><button id="ga">🎙 إنشاء الصوت</button>
     <button class="ghost" id="da" disabled>⬇ تحميل الصوت WAV</button>
     <button class="ghost" id="pb">📝 العنوان والوصف</button><button class="ghost" id="cv">🖼 تحميل الغلاف</button><button class="ghost" id="dv">🎬 تحميل الفيديو مع الصوت</button><button class="ghost hide" id="cx">✖ إلغاء التسجيل</button>
     <span id="vst" style="color:var(--mute)"></span>
@@ -352,7 +352,7 @@ $("ck").onclick=()=>{if(!confirm("مسح كل المفاتيح والشعار و
   KEYS.t=[];KEYS.a=[];$("tm").value=$("tmt").value="";setLogo("");renderKeys()};
 try{KEYS.t=JSON.parse(localStorage.getItem("kt")||"[]");KEYS.a=JSON.parse(localStorage.getItem("ka")||"[]");
   const old=localStorage.getItem("ak");if(old&&!K("t").length)KEYS.t=[old];
-  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;$("tm").value=localStorage.getItem("tm")||"";$("tmt").value=localStorage.getItem("tmt")||""}catch(e){}
+  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const v=localStorage.getItem("tm")||"";if(v&&![...$("tm").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tm").appendChild(o)}$("tm").value=v};$("tmt").value=localStorage.getItem("tmt")||""}catch(e){}
 $("dia").value="dz";try{["mdl","tsh","gv"].forEach(k=>{const v=localStorage.getItem(k);if(v)$(k).value=v})}catch(e){}
 if(!$("mdl").value)$("mdl").selectedIndex=0;
 ["lvl","sub","lno","lpg"].forEach(k=>{try{const v=localStorage.getItem("f_"+k);if(v)$(k).value=v}catch(e){}$(k).addEventListener("input",()=>{try{localStorage.setItem("f_"+k,$(k).value)}catch(e){}})});
@@ -517,10 +517,10 @@ function ensurePub(){let d=$("pub");if(d)return d;d=document.createElement("div"
   <div class="row"><button class="ghost" id="pcD" type="button">نسخ الوصف</button><button class="ghost" id="pg2" type="button">🔄 إعادة التوليد</button><span id="pst"></span></div>`;
   $("vst").parentNode.after(d);
   $("pcT").onclick=()=>copyTxt($("pt").value,$("pcT"));$("pcD").onclick=()=>copyTxt($("pd").value,$("pcD"));$("pg2").onclick=genPub;return d}
-function pubTitle(f,fb){const S=(f.sub||"").trim(),L=(f.lvl||"").trim(),p=String(f.lpg||"").replace(/\D/g,""),a=[];if(S)a.push("درس "+S);if(L)a.push(L);if(p)a.push("ص"+p.padStart(2,"0"));if(title)a.push(title);return a.length>=2?a.join(" | ").slice(0,100):fb}
-function localPub(f){const L=f.lvl||"",S=f.sub||"",T=title||"الدرس",n=f.lno;
+function pubTitle(f,fb){const S=(f.sub||"").trim(),L=(f.lvl||"").trim(),p=String(f.pg||"").replace(/\D/g,""),a=[];if(S)a.push("درس "+S);if(L)a.push(L);if(p)a.push("ص"+p.padStart(2,"0"));if(title)a.push(title);return a.length>=2?a.join(" | ").slice(0,100):fb}
+function localPub(f){const L=f.lvl||"",S=f.sub||"",T=title||"الدرس",n=f.no;
   return{title:("شرح درس "+T+(S||L?" | "+(S+" "+L).trim():"")).slice(0,100),
-  description:"في هذا الفيديو نشرح "+T+(S?" في مادة "+S:"")+(L?" لتلاميذ "+L:"")+" خطوة بخطوة بأسلوب بسيط وممتع.\n"+(n?"الدرس رقم "+n+(f.lpg?" - الصفحة "+f.lpg:"")+"\n":"")+"سيفهم الطفل الدرس ويتدرب على التمارين مع الشرح.\nمناسب للتلاميذ وأولياء الأمور.\nلا تنسَ الاشتراك في قناة دروس الابتدائي والإعجاب بالفيديو وكتابة تعليقك ومشاركته مع أصدقائك.",
+  description:"في هذا الفيديو نشرح "+T+(S?" في مادة "+S:"")+(L?" لتلاميذ "+L:"")+" خطوة بخطوة بأسلوب بسيط وممتع.\n"+(n?"الدرس رقم "+n+(f.pg?" - الصفحة "+f.pg:"")+"\n":"")+"سيفهم الطفل الدرس ويتدرب على التمارين مع الشرح.\nمناسب للتلاميذ وأولياء الأمور.\nلا تنسَ الاشتراك في قناة دروس الابتدائي والإعجاب بالفيديو وكتابة تعليقك ومشاركته مع أصدقائك.",
   chapters:steps.map(x=>String(x.say||"").split(/\s+/).slice(0,4).join(" ")),
   hashtags:[S,L,"الجزائر","التعليم الابتدائي","شرح الدروس","دروس الابتدائي","المنهاج الجزائري",T].filter(Boolean).map(h=>"#"+String(h))}}
 let pubBusy=false;
