@@ -50,6 +50,8 @@ button:disabled{opacity:.45;cursor:default}
 #bar{height:6px;background:var(--line);border-radius:3px;margin-top:10px;overflow:hidden}
 #bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .4s}
 #fl{position:absolute;inset:0;pointer-events:none;--iw:800px}
+#fl .kl{position:absolute;box-sizing:border-box;background:rgba(253,224,71,.55);border:3px solid #f59e0b;border-radius:6px;pointer-events:none;opacity:0;animation:klIn .15s var(--d) both,klSweep var(--t) var(--d) linear both,klOff .4s calc(var(--d) + var(--t)) forwards}
+@keyframes klIn{from{opacity:0}to{opacity:1}}@keyframes klSweep{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes klOff{to{opacity:0}}
 #fl b.ans{animation:ansIn .25s var(--d) both,ansClip var(--t) calc(var(--d) + .15s) both linear,ansOut .9s calc(var(--d) + .15s + var(--t) + 3.2s) forwards;opacity:0;font-family:Caveat,"Playpen Sans Arabic",Cairo,sans-serif;color:#047857;border:3px solid #059669;border-radius:10px;padding:0 .3em;clip-path:inset(0 100% 0 0)}
 #fl b.ans.ar{direction:rtl;clip-path:inset(0 0 0 100%);animation-name:ansIn,ansClipR,ansOut}
 #fl svg.fing{position:absolute;height:auto;pointer-events:none;opacity:0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));animation:fingIn .7s calc(var(--d) - .7s) both,fingOut .5s calc(var(--d) + .15s + var(--t) + .5s) forwards;--ox:7%;--oy:9%}
@@ -78,7 +80,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </head>
 <body>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v2.9</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.0</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -206,22 +208,23 @@ $("go").onclick=async()=>{
 (4) اجعل pause بين 2 و3 بعد كل مجموعة ليردد الطفل.
 تجاهل تمامًا أي علامة مائية أو توقيع أو خطوط ودوائر مرسومة باليد فوق الصفحة، ولا تعتبرها جزءًا من الدرس ولا تقرأها.
 أعد JSON فقط بلا أي نص آخر ولا علامات markdown بهذا الشكل:
-{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","fills":[{"x":0.5,"y":0.5,"w":0.1,"text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
+{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
 - box أرقام عشرية من 0 إلى 1: x,y الزاوية العليا اليسرى و w,h العرض والارتفاع، نسبةً إلى أبعاد الصورة. اجعله ضيقًا ومحكمًا حول عنصر واحد فقط، ولا تدمج عنصرين متباعدين أو شخصية مع تمرين. إن كانت الخطوة عامة استعمل null. اترك هامشًا صغيرًا حول العنصر.
 - tool واحدة من: circle (دائرة)، underline (خط تحت الكلمة)، rect (مستطيل)، highlight (تظليل)، arrow (سهم).
 - fills: استعمله في كل تمرين فيه فراغ أو مكان للإجابة داخل box: حرف ناقص، كلمة، عدد، علامة (> < = + -)، جملة تُرتَّب كلماتها، خانة أو سطر للكتابة، أو إكمال جملة. لكل فراغ عنصر: x,y مركز الفراغ بدقة (من 0 إلى 1 نسبةً للصورة كلها وليس لـ box)، وtext الجواب الصحيح فقط كما يُكتب في الفراغ (قصير: حرف أو كلمة أو عدد أو علامة؛ وفي الترتيب الجملة مرتبة)، وw عرض الفراغ تقريبًا نسبةً لعرض الصورة. ضع من فراغ إلى ثلاثة في الخطوة الواحدة، واطرح السؤال في say ثم انطق الجواب. احسب الجواب بدقة ولا تخمّن، وإن لم تتأكد منه فلا تضع fills.
+- song اختياري: إن وجدت في الصفحة أغنية أو نشيدًا أو قافية (مثل I sing and have fun) فاجعل أول خطوة لها خطوة أغنية: say هو نص الأغنية كاملًا بلغتها الأصلية كما هو مكتوب، سطر في كل سطر، بلا ترجمة ولا إضافة؛ وbox يحيط بنص الأغنية كلها؛ وsong مصفوفة بسطور الأغنية بالترتيب الذي تُغنّى به، لكل سطر text وbox ضيق حول ذلك السطر وحده (من 0 إلى 1 نسبةً للصورة). إن تكرر مقطع في الصفحة فاذكره مرة واحدة. بعد خطوة الأغنية تابع الشرح العادي.
 - jumps اختياري: لكل قفزة على شريط عددي: x1 و x2 موضع علامتي البداية والنهاية، و y ارتفاع الخط، و text مقدار القفزة مثل +36.
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
 - نوّع الأدوات. image هو رقم الصورة.`;
     const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-    let r,j;const T0=Date.now();for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>200000)break;r=await useKeys(K("t"),async key=>{let r;
+    let r,j;const T0=Date.now();for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>500000)break;r=await useKeys(K("t"),async key=>{let r;
     if(!key.startsWith("sk-ant-")){
       const parts=[];
       for(const i of imgs)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
       parts.push({text:prompt});
       const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",
         headers:{"content-type":"application/json","x-goog-api-key":key},
-        body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
+        body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},600000);
       const d=await resp.json();
       if(!resp.ok)throw keyErr(resp.status,(d.error&&d.error.message)||"خطأ من خادم Gemini.");
       r={text:((d.candidates&&d.candidates[0]&&d.candidates[0].content.parts)||[]).map(p=>p.text||"").join("")};
@@ -231,7 +234,7 @@ $("go").onclick=async()=>{
       content.push({type:"text",text:prompt});
       const resp=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",
         headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:8000,messages:[{role:"user",content}]})},300000);
+        body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:8000,messages:[{role:"user",content}]})},600000);
       const d=await resp.json();
       if(!resp.ok)throw keyErr(resp.status,resp.status===401?"المفتاح غير صحيح.":(d.error&&d.error.message)||"خطأ من الخادم.");
       r={text:d.content.map(c=>c.text||"").join("")};
@@ -240,6 +243,7 @@ $("go").onclick=async()=>{
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>f&&{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
+      t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length){t.tts=t.say;t.tts0=t.say}
       t.jumps=(Array.isArray(t.jumps)?t.jumps:[]).map(q=>q&&{x1:+q.x1,x2:+q.x2,y:+q.y,text:q.text}).filter(q=>q&&isFinite(q.x1)&&isFinite(q.x2)&&isFinite(q.y))});
     snapAll();curDia="dz";audioDia=null;OUT.buf=OUT.url=OUT.wav=OUT.sig=null;
     if(!steps.length) throw new Error("لم أستطع فهم الدرس، جرّب صورة أوضح.");
@@ -298,6 +302,8 @@ function extras(i,cu){
     t.jumps.forEach((q,k)=>{const ap=jgeo(q,t),mx=(q.x1+q.x2)/2,d=.3+k*.7,sg=q.x2>q.x1?1:-1,X=q.x2*100,Y=q.y*100;
       o.insertAdjacentHTML("beforeend",`<path d="M${q.x1*100} ${Y} Q${mx*100} ${(q.y-2*ap)*100} ${X} ${Y}" pathLength="1" class="dr" style="${cu?`animation-delay:${d}s`:"animation:none;stroke-dashoffset:0"}"/><polygon class="ah" points="${X},${Y} ${X-sg*3},${Y-2} ${X-sg*.5},${Y-4.5}" style="${cu?`animation-delay:${d+.9}s`:"animation:none"}"/>`);
       if(q.text!=null)fl.insertAdjacentHTML("beforeend",`<i style="left:${mx*100}%;top:${(q.y-ap-.03)*100}%;${cu?`animation-delay:${d+.5}s`:"animation:none"}">${esc(q.text)}</i>`)});
+    if(cu&&(t.song||[]).length){const S=t.song,W=S.map(l=>l.text.length+6),tot=W.reduce((a,b)=>a+b,0),aud=Math.max(3,(t.buf?t.buf.duration:2.5+t.say.length*.06));let c0=GAP0;
+      S.forEach((l,q)=>{const d=aud*W[q]/tot,[bx,by,bw,bh]=l.box;fl.insertAdjacentHTML("beforeend",`<div class="kl" style="left:${bx*100}%;top:${by*100}%;width:${bw*100}%;height:${bh*100}%;--d:${c0}s;--t:${d}s"></div>`);c0+=d})}
     t.fills.forEach((f,k)=>{if(!cu)return;const tx=String(f.text),ar=/[\u0600-\u06FF]/.test(tx),n=t.fills.length,sp=Math.min(1.4,Math.max(.9,5/Math.max(1,n))),s0=1.6+k*sp,dT=Math.max(.6,Math.min(1.8,.11*tx.length));
       fl.insertAdjacentHTML("beforeend",`<b class="ans${ar?" ar":""}" style="left:${f.x*100}%;top:${f.y*100}%;font-size:calc(var(--iw)*${f.fs*1.12});min-width:calc(var(--iw)*${f.bw*1.05});--d:${s0}s;--t:${dT}s">${esc(f.text)}</b><svg class="fing" viewBox="0 0 64 80" style="left:${f.x*100}%;top:${f.y*100}%;--d:${s0}s;--t:${dT}s;width:calc(var(--iw)*${f.fs*3.6/80*64})"><path d="${HAND_D}" fill="#ffd9b8" stroke="#7a4b2a" stroke-width="2.5" stroke-linejoin="round"/><path d="M30 46V56M38 46V56M46 46V56" stroke="#7a4b2a" stroke-width="2.5" fill="none"/></svg>`)})}
 }
@@ -400,12 +406,11 @@ async function applyDialect(){
   const d=$("dia").value;try{localStorage.setItem("dia",d)}catch(e){}
   if(d===curDia)return;
   if(d==="msa"||!DIA[d]){steps.forEach(s=>{s.say=s.say0;s.tts=s.tts0;s.buf=s.url=null})}
-  else{vst("جارٍ تحويل النص إلى "+DIA[d]+"...");
-    const a=await llmJson(`أنت خبير باللهجات العربية ومعلم ابتدائي. أعد صياغة كل نص من النصوص التالية (شرح درس لتلميذ ابتدائي) بـ${DIA[d]} بأسلوب ودود وبسيط، مع الحفاظ على المعنى والأرقام والعمليات الحسابية.
-أعد JSON فقط: مصفوفة بنفس الترتيب والعدد، كل عنصر {"say":"النص باللهجة بلا تشكيل","tts":"النص نفسه مشكولًا بالكامل ليُنطق صحيحًا بتلك اللهجة، وتُكتب الأرقام والرموز الحسابية حروفًا كما تُنطق في تلك اللهجة"}.
-النصوص: ${JSON.stringify(steps.map(s=>s.say0))}`);
-    if(!Array.isArray(a)||a.length!==steps.length)throw new Error("نتيجة غير صالحة من النموذج.");
-    steps.forEach((s,i)=>{const o=a[i]||{};s.say=String(o.say||s.say0);s.tts=String(o.tts||o.say||s.tts0);s.buf=s.url=null})}
+  else{vst("جارٍ تحويل النص إلى "+DIA[d]+"...");const ix=steps.map((s,i)=>(s.song||[]).length?-1:i).filter(i=>i>=0);
+    const a=await llmJson(`أنت خبير باللهجات العربية ومعلم ابتدائي. أعد صياغة كل نص من النصوص التالية (شرح درس لتلميذ ابتدائي) بـ${DIA[d]} بأسلوب ودود وبسيط، مع الحفاظ على المعنى والأرقام والعمليات الحسابية.\nأعد JSON فقط: مصفوفة بنفس الترتيب والعدد، كل عنصر {"say":"النص باللهجة بلا تشكيل","tts":"النص نفسه مشكولًا بالكامل ليُنطق صحيحًا بتلك اللهجة، وتُكتب الأرقام والرموز الحسابية حروفًا كما تُنطق في تلك اللهجة"}.\nالنصوص: ${JSON.stringify(ix.map(i=>steps[i].say0))}`);
+    if(!Array.isArray(a)||a.length!==ix.length)throw new Error("نتيجة غير صالحة من النموذج.");
+    steps.forEach(s=>{if((s.song||[]).length){s.say=s.say0;s.tts=s.tts0;s.buf=s.url=null}});
+    ix.forEach((i,k)=>{const o=a[k]||{},s=steps[i];s.say=String(o.say||s.say0);s.tts=String(o.tts||o.say||s.tts0);s.buf=s.url=null})}
   curDia=d;$("da").disabled=true}
 // ---- حفظ المشاريع والصوت محليًا (IndexedDB) ----
 let curPid=null;
@@ -454,7 +459,7 @@ renderProjects();
 
 const audioSig=()=>$("mdl").value+"|"+$("tmt").value.trim()+"|"+$("gv").value+"|"+$("tsh").value+"|"+$("dia").value;
 async function ensureTashkeel(){
-  const m=$("tsh").value,idx=steps.map((t,i)=>t.ttsMode!==m?i:-1).filter(i=>i>=0);
+  const m=$("tsh").value,idx=steps.map((t,i)=>(t.song||[]).length?-1:(t.ttsMode!==m?i:-1)).filter(i=>i>=0);
   if(idx.length){vst("جارٍ تجهيز نص النطق...");
     const rule={full:"شكّلها تشكيلًا كاملًا يعكس نطق الدارجة الجزائرية كما تُسمع لا إعراب الفصحى: بلا حركات إعرابية على أواخر الكلمات، وبسكون في أواخرها كما تُنطق في الدارجة.",
       light:"شكّل فقط الكلمات الملتبسة النطق (الشدة والسكون والحركة الأساسية للكلمات التي قد تُقرأ خطأ)، دون تشكيل أواخر الكلمات ودون إعراب الفصحى، وأبقِ بقية الكلمات بلا تشكيل.",
@@ -473,16 +478,17 @@ async function ensureTashkeel(){
   $("ttb").textContent=steps.map((s,i)=>(i+1)+". "+(s.tts||s.say)).join("\n")}
 let TTS38="sys";
 const TTS_DIR="Read the following in Algerian Arabic (Darija), in the warm, clear voice of a primary-school teacher, at a calm pace. Any French or English words or sentences must be pronounced slowly and clearly with accurate native French/English pronunciation, as a language teacher modelling pronunciation for children, with a brief pause before and after each one: ";
-function ttsReq(model,txt){const gc={responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$("gv").value}}}};
-  if(/3\.8/.test(model)){const c={contents:[{parts:[{text:txt}]}],generationConfig:gc};if(TTS38==="sys")c.systemInstruction={parts:[{text:"You are a text-to-speech voice. Speak ONLY the user's text, exactly as written, and never read these instructions aloud. Style: Algerian Arabic (Darija), the warm, clear voice of a primary-school teacher, calm pace. Any French or English words or sentences must be pronounced slowly and clearly with accurate native pronunciation, with a brief pause before and after each one."}]};return c}
-  return{contents:[{parts:[{text:TTS_DIR+txt}]}],generationConfig:gc}}
+const SONG_DIR="Sing the following children's song in English, in a cheerful, warm, child-friendly voice, with a clear steady rhythm and a simple catchy melody, at a moderate pace, with a short pause between lines. Pronounce every word clearly: ";
+function ttsReq(model,txt,song){const gc={responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:$("gv").value}}}};
+  if(/3\.8/.test(model)){const c={contents:[{parts:[{text:txt}]}],generationConfig:gc};if(TTS38==="sys")c.systemInstruction={parts:[{text:song?"You are a singing voice. Sing ONLY the user's text, exactly as written, and never read these instructions aloud. Style: a children's song in English, cheerful and warm, clear steady rhythm and a simple catchy melody, moderate pace, a short pause between lines, every word pronounced clearly.":"You are a text-to-speech voice. Speak ONLY the user's text, exactly as written, and never read these instructions aloud. Style: Algerian Arabic (Darija), the warm, clear voice of a primary-school teacher, calm pace. Any French or English words or sentences must be pronounced slowly and clearly with accurate native pronunciation, with a brief pause before and after each one."}]};return c}
+  return{contents:[{parts:[{text:(song?SONG_DIR:TTS_DIR)+txt}]}],generationConfig:gc}}
 async function geminiTts(i,ac,keys){
   const o=i==="outro"?OUT:steps[i],txt=o.tts||o.say;
   const d=await useKeys(keys,async key=>{
     const MN=$("tmt").value.trim()||$("mdl").value;
     for(let a=0;a<3;a++){
       const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MN}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-        body:JSON.stringify(ttsReq(MN,txt))});
+        body:JSON.stringify(ttsReq(MN,txt,!!(o.song&&o.song.length)))});
       const d=await r.json().catch(()=>({}));
       if(!r.ok&&r.status===400&&/3\.8/.test(MN)&&TTS38==="sys"){TTS38="plain";a--;continue}
       if(!r.ok)throw keyErr(r.status,(d.error&&d.error.message)||"خطأ من Gemini "+r.status);
@@ -660,6 +666,10 @@ function drawExtras(x0,c,i,lt,z){const iw=c.iw,ih=c.ih,s0=steps[i],ga=x0.globalA
       if(p>.95){const e=.016*iw;x0.beginPath();x0.moveTo(X2,Y);x0.lineTo(X2-sg*e*1.4,Y-e*.8);x0.lineTo(X2-sg*e*.2,Y-e*1.9);x0.fill()}
       if(q.text!=null&&p>.5){const fs=.026*iw;x0.font=`800 ${fs}px ${FT}`;const w=x0.measureText(String(q.text)).width+.014*iw,h=fs*1.3,ly=Y-ap-.03*ih;
         x0.globalAlpha=ga*cl((p-.5)*2);x0.fillStyle="#fff";rr(x0,mx-w/2,ly-h/2,w,h,h*.3);x0.fill();x0.fillStyle="#e11d48";x0.fillText(String(q.text),mx,ly)}});
+    if(cu&&(t.song||[]).length){const S=t.song,W=S.map(l=>l.text.length+6),tot=W.reduce((a,b)=>a+b,0),aud=Math.max(3,CURDUR-GAP0-.7-pauseOf(t));let c0=GAP0;
+      S.forEach((l,q)=>{const d=aud*W[q]/tot,p=cl((lt-c0)/d),on=lt>=c0-.05&&lt<c0+d+.4;c0+=d;if(!on)return;const[bx,by,bw,bh]=l.box,pd=.004*iw,fa=lt<c0?1:1-cl((lt-c0)/.4);
+        x0.save();x0.globalAlpha=ga*fa;x0.fillStyle="rgba(253,224,71,.55)";rr(x0,bx*iw-pd,by*ih-pd,bw*iw*p+2*pd*(p>0?1:0),bh*ih+2*pd,6/z);x0.fill();
+        x0.strokeStyle="#f59e0b";x0.lineWidth=3/z;rr(x0,bx*iw-pd,by*ih-pd,bw*iw+2*pd,bh*ih+2*pd,6/z);x0.stroke();x0.restore()})}
     t.fills.forEach((f,k)=>{if(!cu)return;
       const n=t.fills.length,sp=Math.min(1.6,Math.max(.9,(CURDUR-3.2)/Math.max(1,n))),s0=1.6+k*sp,txt=String(f.text),ar=/[\u0600-\u06FF]/.test(txt),
         dT=Math.max(.6,Math.min(1.8,.11*txt.length)),t0=s0+.15,e0=t0+dT+3.2,a=Math.min(eio(cl((lt-s0)/.25)),1-eio(cl((lt-e0)/.9)));
