@@ -52,7 +52,7 @@ button:disabled{opacity:.45;cursor:default}
 #fl{position:absolute;inset:0;pointer-events:none;--iw:800px}
 #fl .kl{position:absolute;box-sizing:border-box;background:rgba(253,224,71,.55);border:3px solid #f59e0b;border-radius:6px;pointer-events:none;opacity:0;animation:klIn .15s var(--d) both,klSweep var(--t) var(--d) linear both,klOff .4s calc(var(--d) + var(--t)) forwards}
 @keyframes klIn{from{opacity:0}to{opacity:1}}@keyframes klSweep{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes klOff{to{opacity:0}}
-#fl b.ans{animation:ansIn .25s var(--d) both,ansClip var(--t) calc(var(--d) + .15s) both linear,ansOut .9s calc(var(--d) + .15s + var(--t) + 3.2s) forwards;opacity:0;font-family:Caveat,"Playpen Sans Arabic",Cairo,sans-serif;color:#047857;border:3px solid #059669;border-radius:10px;padding:0 .3em;clip-path:inset(0 100% 0 0)}
+#fl b.ans{animation:ansIn .25s var(--d) both,ansClip var(--t) calc(var(--d) + .15s) both linear,ansOut .9s calc(var(--d) + .15s + var(--t) + 3.2s) forwards;opacity:0;font-family:Cairo,Tahoma,sans-serif;font-weight:800;color:#047857;border:3px solid #059669;border-radius:10px;padding:0 .3em;clip-path:inset(0 100% 0 0)}
 #fl b.ans.tick{border:0;background:transparent;color:#059669;padding:0;min-width:0;line-height:1}
 #fl b.ans.ar{direction:rtl;clip-path:inset(0 0 0 100%);animation-name:ansIn,ansClipR,ansOut}
 #fl svg.fing{position:absolute;height:auto;pointer-events:none;opacity:0;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));animation:fingIn .7s calc(var(--d) - .7s) both,fingOut .5s calc(var(--d) + .15s + var(--t) + .5s) forwards;--ox:7%;--oy:9%}
@@ -75,6 +75,8 @@ button:disabled{opacity:.45;cursor:default}
 .pj{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
 .pt{flex:1;min-width:0}.pt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt small{display:block;color:var(--mute)}
 .hide{display:none!important}
+#gear{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:8px;z-index:60;width:34px;height:34px;min-width:0;padding:0;border-radius:50%;font-size:1rem;line-height:1;background:var(--card);color:var(--ink);border:1px solid var(--line);opacity:.88;display:flex;align-items:center;justify-content:center}
+#set.ovl{position:fixed;inset:0;z-index:55;overflow:auto;border-radius:0;max-width:none;margin:0;padding:56px 16px 28px;background:var(--bg)}
 #msg{color:var(--mark);margin-top:10px}
 .spin{display:inline-block;width:16px;height:16px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:rot 1s linear infinite;vertical-align:middle;margin-inline-end:8px}
 @keyframes rot{to{transform:rotate(360deg)}}
@@ -82,8 +84,9 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </style>
 </head>
 <body>
+<button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.5</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.6</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -91,13 +94,13 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
   <div class="thumbs" id="th"></div>
   <div class="fld">
     <div class="w"><label for="lvl">المستوى الدراسي</label><select id="lvl"><option value="">— اختر المستوى —</option><option value="السنة الأولى ابتدائي">السنة الأولى ابتدائي</option><option value="السنة الثانية ابتدائي">السنة الثانية ابتدائي</option><option value="السنة الثالثة ابتدائي">السنة الثالثة ابتدائي</option><option value="السنة الرابعة ابتدائي">السنة الرابعة ابتدائي</option><option value="السنة الخامسة ابتدائي">السنة الخامسة ابتدائي</option></select></div>
-    <div><label for="sub">المادة</label><input id="sub" list="subs" placeholder="مثال: رياضيات"><datalist id="subs"><option value="رياضيات"><option value="اللغة العربية"><option value="التربية الإسلامية"><option value="التربية العلمية والتكنولوجية"><option value="التربية المدنية"><option value="التاريخ"><option value="الجغرافيا"><option value="اللغة الفرنسية"><option value="اللغة الإنجليزية"></datalist></div>
-    <div><label for="lno">رقم الدرس</label><input id="lno" inputmode="numeric" placeholder="مثال: 5"></div>
-    <div><label for="lpg">رقم الصفحة</label><input id="lpg" inputmode="numeric" placeholder="مثال: 13"></div>
+    <div style="grid-column:1/-1"><label for="sub">المادة</label><input id="sub" list="subs" placeholder="مثال: رياضيات"><datalist id="subs"><option value="رياضيات"><option value="اللغة العربية"><option value="التربية الإسلامية"><option value="التربية العلمية والتكنولوجية"><option value="التربية المدنية"><option value="التاريخ"><option value="الجغرافيا"><option value="اللغة الفرنسية"><option value="اللغة الإنجليزية"></datalist></div>
+    <input id="lno" type="hidden">
+    <input id="lpg" type="hidden">
     <div class="w"><label for="ttlopt">خيارات العنوان</label><select id="ttlopt"><option value="0">1- درس جديد</option><option value="1">2- مازلنا في درس</option><option value="2">3- محور جديد</option><option value="3">4- مازلنا في محور</option></select></div>
     <div class="w" style="color:var(--mute);font-size:.85rem">عنوان الدرس يُستخرج تلقائيًا من الصورة، ويظهر مع هذه المعلومات في مقدمة الفيديو.</div>
   </div>
-  <div class="row"><button id="go" disabled>✨ إنشاء الشرح</button><button class="ghost" id="gear" type="button">⚙️ الإعدادات</button><span id="st"></span></div>
+  <div class="row"><button id="go" disabled>✨ إنشاء الشرح</button><span id="st"></span></div>
   <div id="msg"></div>
   <div id="proj" class="hide"><h3 style="margin:20px 0 8px;font-size:1rem">📁 مشاريعي المحفوظة</h3><div id="plist"></div></div>
 </section>
@@ -112,7 +115,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
   <h3>🖼 شعار القناة (اختياري، يظهر أعلى يمين الفيديو)</h3>
   <div class="row"><label class="drop" for="lgf" style="flex:1;margin:0">اضغط لرفع صورة الشعار<input id="lgf" type="file" accept="image/*" hidden></label><img id="lgp" class="hide" alt="الشعار"><button class="ghost hide" id="lgx" type="button">إزالة</button></div>
   <h3>🧠 النماذج</h3>
-  <select id="tm" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="">gemini-3.8-flash — الافتراضي</option><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الأسرع</option><option value="gemini-4-argon">gemini-4-argon — الأقوى (مدفوع)</option></select><div class="sub" style="margin:2px 0 4px">نموذج تجهيز نص النطق (إعادة كتابة النص للصوت، مهمة بسيطة تكفيها نماذج خفيفة)</div><select id="tmp" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"><option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite — الافتراضي (الأسرع)</option><option value="gemini-3.8-flash">gemini-3.8-flash</option></select>
+  <select id="tm" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"></select><div id="tmdef" class="sub" style="margin:-2px 0 10px"></div><div class="sub" style="margin:2px 0 4px">نموذج تجهيز نص النطق (إعادة كتابة النص للصوت، مهمة بسيطة تكفيها نماذج خفيفة)</div><select id="tmp" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr"></select>
   <input id="tmt" placeholder="نموذج الصوت (اختياري، يتجاوز القائمة)" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px" dir="ltr" autocomplete="off">
   <h3>📏 طول الشرح</h3>
   <div class="row"><select id="len" style="font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="s">شرح مختصر</option><option value="m" selected>شرح متوسط</option><option value="l">شرح مفصّل</option></select></div>
@@ -146,7 +149,10 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let TMO=null,OVMSG="",SLK=1;const TM=()=>(TMO||$("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
+let TMO=null,OVMSG="",SLK=1;
+const MODELS=[["gemini-3.8-flash","مجاني","بطيء"],["gemini-3.5-flash-lite","مجاني","سريع"],["gemini-3.1-flash-lite","مجاني","سريع"],["gemini-3.1-pro-preview","مجاني","بطيء"],["gemini-3.6-flash","مدفوع","سريع"],["gemini-3-flash-preview","مدفوع","سريع"],["gemini-4-argon","مدفوع","بطيء"]];
+function fillModels(el,def){el.innerHTML=MODELS.map(([id,pay,sp])=>`<option value="${id}">${id} — ${pay} • ${sp}</option>`).join("")}
+const TM=()=>(TMO||$("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
 async function fetchT(u,o,ms,rt){ms=ms||120000;const c=new AbortController(),tm=setTimeout(()=>c.abort(),ms),tmo=()=>{const x=new Error("انتهت مهلة الانتظار ("+Math.round(ms/1000)+" ث). Gemini بطيء الآن؛ أعد المحاولة بعد قليل أو جرّب نموذجًا أسرع في خانة «النموذج» بالإعدادات.");x.retry=!!rt;return x};
   let r;try{r=await fetch(u,{...o,signal:c.signal})}catch(e){clearTimeout(tm);if(e.name==="AbortError")throw tmo();const x=new Error("تعذّر الاتصال بالخادم: "+(e.message||e));x.retry=true;throw x}
   const rd=f=>async()=>{try{return await r[f]()}catch(e){if(e.name==="AbortError"||c.signal.aborted)throw tmo();throw e}finally{clearTimeout(tm)}};
@@ -204,7 +210,7 @@ $("f").onchange=async e=>{
 const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","محور جديد هو","مازلنا في محور"];
 // ---- تحليل الدرس ----
 $("go").onclick=async()=>{
-  $("msg").textContent="";$("go").disabled=true;
+  $("msg").textContent="";$("go").disabled=true;$("lpg").value="";$("lno").value="";
   const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس... '+Math.round((Date.now()-_t0)/1000)+" ث"+(OVMSG?" — "+OVMSG:"")},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
   try{
     if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
@@ -218,9 +224,10 @@ $("go").onclick=async()=>{
 (2) في say اكتب الكلمة أو الجملة الأجنبية بحروفها اللاتينية كما في الكتاب داخل كلام بالدارجة: انطقها أولًا، ثم اشرح معناها بالدارجة، ثم أعدها مرة ثانية ليحفظها الطفل، واطلب منه الترديد معك (مثل: «عاود معايا»).
 (3) شرح المعاني والقواعد بالدارجة الجزائرية فقط، أما الكلمات والجمل الأجنبية فتبقى بلغتها الأصلية دون نقلها إلى الحروف العربية.
 (4) اجعل pause بين 2 و3 بعد كل مجموعة ليردد الطفل.
+- page: رقم الصفحة المطبوع على الصفحة نفسها (أرقام فقط، غالبًا في أسفل أحد الجانبين). إن كانت هناك أكثر من صورة فاكتب رقم الأولى، وإن لم يظهر رقم بوضوح فاتركه فارغًا ولا تخمّن.
 تجاهل تمامًا أي علامة مائية أو توقيع أو خطوط ودوائر مرسومة باليد فوق الصفحة، ولا تعتبرها جزءًا من الدرس ولا تقرأها.
 أعد JSON فقط بلا أي نص آخر ولا علامات markdown بهذا الشكل:
-{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"when":"نكتب هنا","text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
+{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","page":"28","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"when":"نكتب هنا","text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
 - box أرقام عشرية من 0 إلى 1: x,y الزاوية العليا اليسرى و w,h العرض والارتفاع، نسبةً إلى أبعاد الصورة. اجعله ضيقًا ومحكمًا حول عنصر واحد فقط، ولا تدمج عنصرين متباعدين أو شخصية مع تمرين. إن كانت الخطوة عامة استعمل null. اترك هامشًا صغيرًا حول العنصر.
 - tool واحدة من: circle (دائرة)، underline (خط تحت الكلمة)، rect (مستطيل)، highlight (تظليل)، arrow (سهم).
 - fills: استعمله في كل تمرين فيه فراغ أو مكان للإجابة داخل box: حرف ناقص، كلمة، عدد، علامة (> < = + -)، جملة تُرتَّب كلماتها، خانة أو سطر للكتابة، أو إكمال جملة. لكل فراغ عنصر: x,y مركز الفراغ بدقة (من 0 إلى 1 نسبةً للصورة كلها وليس لـ box)، وtext الجواب الصحيح فقط كما يُكتب في الفراغ (قصير: حرف أو كلمة أو عدد أو علامة؛ وفي الترتيب الجملة مرتبة)، وw عرض الفراغ تقريبًا نسبةً لعرض الصورة، وwhen عبارة قصيرة (من 2 إلى 5 كلمات) منسوخة حرفيًا من say تُنطق في اللحظة التي يجب أن تظهر فيها هذه الإجابة، مثل «نضع علامة صح» أو «نكتب هنا» أو الكلمة المطلوبة نفسها (يجب أن تُنطق قبل الجواب أو معه، وبنفس ترتيب الفراغات). لخانة يوضع فيها علامة صح اجعل text هو ✓ فقط. ضع من فراغ إلى ثلاثة في الخطوة الواحدة، واطرح السؤال في say ثم انطق الجواب. احسب الجواب بدقة ولا تخمّن، وإن لم تتأكد منه فلا تضع fills.
@@ -253,7 +260,7 @@ $("go").onclick=async()=>{
     }
     return r}));
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
-    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";
+    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";$("lpg").value=(String(j.page||"").match(/\d+/)||[""])[0];
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>{if(!f)return f;const wt=z=>{let n=0;for(const c of z)n+=/[.,!?؟،:؛]/.test(c)?8:1;return n},sy=String(t.say||""),wh=String(f.when||""),ix=wh?sy.indexOf(wh):-1,ix2=ix<0&&f.text?sy.indexOf(String(f.text)):-1,pi=ix>=0?ix:ix2,pl=ix>=0?wh.length:ix2>=0?String(f.text).length:0;return{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text,pos:pi>=0&&sy?Math.min(.98,Math.max(.02,(wt(sy.slice(0,pi))+wt(sy.slice(pi,pi+pl))/2)/wt(sy))):null}}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length>1){const hs=t.song.map(l=>l.box[3]).sort((a,b)=>a-b),mh=hs[hs.length>>1]||.02,yc=l=>l.box[1]+l.box[3]/2,rows=[];[...t.song].sort((a,b)=>yc(a)-yc(b)).forEach(l=>{const r=rows.find(R=>Math.abs(R.y-yc(l))<mh*.6);if(r){r.items.push(l);r.y=(r.y*(r.items.length-1)+yc(l))/r.items.length}else rows.push({y:yc(l),items:[l]})});
         rows.sort((a,b)=>a.y-b.y);rows.forEach(R=>R.items.sort((a,b)=>a.box[0]-b.box[0]));t.song=rows.flatMap(R=>R.items);t.say=rows.map(R=>R.items.map(l=>l.text).join(" ")).join("\n")}
@@ -320,8 +327,8 @@ function extras(i,cu){
       S.forEach((l,q)=>{const d=aud*W[q]/tot,[bx,by,bw,bh]=l.box;fl.insertAdjacentHTML("beforeend",`<div class="kl" style="left:${bx*100}%;top:${by*100}%;width:${bw*100}%;height:${bh*100}%;--d:${c0}s;--t:${d}s"></div>`);c0+=d})}
     const S0d=cu?fillTimes(t,Math.max(2,t.buf?t.buf.duration:2.5+t.say.length*.06)):[];
     t.fills.forEach((f,k)=>{if(!cu)return;const tx=String(f.text),tick=/^[✓✔√]$/.test(tx.trim()),ar=/[\u0600-\u06FF]/.test(tx),s0=S0d[k],dT=tick?.6:Math.max(.6,Math.min(1.8,.11*tx.length));
-      const wpc=(tx.length*.55*f.fs*1.12+.014)*100,fx=f.x*100,x0p=ar?fx+wpc/2:fx-wpc/2,x1p=ar?fx-wpc/2:fx+wpc/2;
-      fl.insertAdjacentHTML("beforeend",`<b class="ans${ar?" ar":""}${tick?" tick":""}" style="left:${f.x*100}%;top:${f.y*100}%;font-size:calc(var(--iw)*${f.fs*(tick?2:1.12)});min-width:calc(var(--iw)*${tick?0:f.bw*1.05});--d:${s0}s;--t:${dT}s">${tick?"✔":esc(f.text)}</b>`+(tick?`<svg class="fing" viewBox="0 0 64 80" style="left:${f.x*100}%;top:${f.y*100}%;--d:${s0}s;--t:${dT}s;width:calc(var(--iw)*${f.fs*3.6/80*64})"><path d="${HAND_D}" fill="#FFCC4D" stroke="#C98A1B" stroke-width="2.2" stroke-linejoin="round"/><path d="M38 44V56M44 44V56M50 44V56" stroke="#C98A1B" stroke-width="2.2" fill="none"/></svg>`:`<svg class="pen" viewBox="-8 -52 60 60" style="--x0:${x0p}%;--x1:${x1p}%;--d:${s0}s;--t:${dT}s;top:calc(${f.y*100}% + var(--iw)*${f.fs*.4});width:calc(var(--iw)*${f.fs*2.6/58*60})"><g transform="rotate(45)"><path d="M-6-16H6L2.2-6H-2.2Z" fill="#F5D6A8" stroke="#B58B54" stroke-width="1.4"/><path d="M0 0L-2.2-6H2.2Z" fill="#3B3B3B"/><path d="M-6-46H6V-16H-6Z" fill="#FFC107" stroke="#B8860B" stroke-width="1.4"/><path d="M-6-51H6V-46H-6Z" fill="#B0BEC5" stroke="#78909C" stroke-width="1.4"/><rect x="-6" y="-58" width="12" height="7" rx="3" fill="#F48FB1" stroke="#C2185B" stroke-width="1.4"/></g></svg>`))})}
+      const wpc=(tx.length*.6*f.fs+.014)*100,fx=f.x*100,x0p=ar?fx+wpc/2:fx-wpc/2,x1p=ar?fx-wpc/2:fx+wpc/2;
+      fl.insertAdjacentHTML("beforeend",`<b class="ans${ar?" ar":""}${tick?" tick":""}" style="left:${f.x*100}%;top:${f.y*100}%;font-size:calc(var(--iw)*${f.fs*(tick?2:1)});min-width:calc(var(--iw)*${tick?0:f.bw*1.05});--d:${s0}s;--t:${dT}s">${tick?"✔":esc(f.text)}</b>`+(tick?`<svg class="fing" viewBox="0 0 64 80" style="left:${f.x*100}%;top:${f.y*100}%;--d:${s0}s;--t:${dT}s;width:calc(var(--iw)*${f.fs*3.6/80*64})"><path d="${HAND_D}" fill="#FFCC4D" stroke="#C98A1B" stroke-width="2.2" stroke-linejoin="round"/><path d="M38 44V56M44 44V56M50 44V56" stroke="#C98A1B" stroke-width="2.2" fill="none"/></svg>`:`<svg class="pen" viewBox="-8 -52 60 60" style="--x0:${x0p}%;--x1:${x1p}%;--d:${s0}s;--t:${dT}s;top:calc(${f.y*100}% + var(--iw)*${f.fs*.4});width:calc(var(--iw)*${f.fs*2.6/58*60})"><g transform="rotate(45)"><path d="M-6-16H6L2.2-6H-2.2Z" fill="#F5D6A8" stroke="#B58B54" stroke-width="1.4"/><path d="M0 0L-2.2-6H2.2Z" fill="#3B3B3B"/><path d="M-6-46H6V-16H-6Z" fill="#FFC107" stroke="#B8860B" stroke-width="1.4"/><path d="M-6-51H6V-46H-6Z" fill="#B0BEC5" stroke="#78909C" stroke-width="1.4"/><rect x="-6" y="-58" width="12" height="7" rx="3" fill="#F48FB1" stroke="#C2185B" stroke-width="1.4"/></g></svg>`))})}
 }
 function say(t){
   clearInterval(typer);const c=$("cap");c.textContent="";let n=0;const ch=[...t];
@@ -375,14 +382,16 @@ $("lgf").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createO
 $("lgx").onclick=()=>{try{localStorage.removeItem("logo")}catch(e){}setLogo("");$("lgf").value=""};
 ["tm","tmt","tmp"].forEach(k=>{$(k).oninput=()=>{try{localStorage.setItem(k,$(k).value)}catch(e){}}});
 $("len").onchange=()=>{try{localStorage.setItem("len",$("len").value)}catch(e){}};
-$("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide");renderKeys()};
-$("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide");$("msg").textContent=""};
+$("gear").onclick=()=>{const open=!$("set").classList.contains("hide");if(open){$("set").classList.add("hide");$("set").classList.remove("ovl");return}$("set").classList.add("ovl");$("set").classList.remove("hide");renderKeys()};
+$("sb").onclick=()=>{$("set").classList.add("hide");$("set").classList.remove("ovl");$("msg").textContent=""};
 $("ck").onclick=()=>{if(!confirm("مسح كل المفاتيح والشعار والإعدادات المحفوظة؟"))return;
   try{["kt","ka","ak","ek","vid","logo","mdl","tsh","gv","len","dia","tm","tmt","tmp","f_lvl","f_sub","f_lno","f_lpg"].forEach(k=>localStorage.removeItem(k))}catch(e){}
-  KEYS.t=[];KEYS.a=[];$("tm").value=$("tmt").value="";$("tmp").selectedIndex=0;setLogo("");renderKeys()};
+  KEYS.t=[];KEYS.a=[];$("tm").value="gemini-3.8-flash";$("tmt").value="";$("tmp").value="gemini-3.5-flash-lite";$("tm").dispatchEvent(new Event("change"));setLogo("");renderKeys()};
 try{KEYS.t=JSON.parse(localStorage.getItem("kt")||"[]");KEYS.a=JSON.parse(localStorage.getItem("ka")||"[]");
   const old=localStorage.getItem("ak");if(old&&!K("t").length)KEYS.t=[old];
-  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const v=localStorage.getItem("tm")||"";if(v&&![...$("tm").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tm").appendChild(o)}$("tm").value=v};$("tmt").value=localStorage.getItem("tmt")||"";{const v=localStorage.getItem("tmp")||"";if(v&&![...$("tmp").options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$("tmp").appendChild(o)}if(v)$("tmp").value=v}}catch(e){}
+  const lg=localStorage.getItem("logo");if(lg)setLogo(lg);const ln=localStorage.getItem("len");if(ln)$("len").value=ln;{const DT="gemini-3.8-flash",DP="gemini-3.5-flash-lite";fillModels($("tm"));fillModels($("tmp"));
+    for(const[k,d]of[["tm",DT],["tmp",DP]]){const v=localStorage.getItem(k)||d;if(![...$(k).options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=v+" (مخصص)";$(k).appendChild(o)}$(k).value=v}
+    $("tmt").value=localStorage.getItem("tmt")||"";const sh=()=>{const o=$("tm").selectedOptions[0];$("tmdef").textContent="⭐ الافتراضي للتحليل: "+(o?o.textContent:"")};sh();$("tm").addEventListener("change",sh)}}catch(e){}
 $("dia").value="dz";try{if(localStorage.getItem("mdl_v")!=="3"){localStorage.removeItem("mdl");if(/3\.8/.test(localStorage.getItem("tmt")||""))localStorage.removeItem("tmt");localStorage.setItem("mdl_v","3")}}catch(e){}
 try{["mdl","tsh","gv"].forEach(k=>{const v=localStorage.getItem(k);if(v)$(k).value=v})}catch(e){}
 if(!$("mdl").value)$("mdl").selectedIndex=0;
@@ -696,7 +705,7 @@ function drawExtras(x0,c,i,lt,z){const iw=c.iw,ih=c.ih,s0=steps[i],ga=x0.globalA
     t.fills.forEach((f,k)=>{if(!cu)return;
       const s0=S0[k],txt=String(f.text),tick=/^[✓✔√]$/.test(txt.trim()),ar=/[\u0600-\u06FF]/.test(txt),
         dT=tick?.6:Math.max(.6,Math.min(1.8,.11*txt.length)),t0=s0+.15,e0=t0+dT+3.5,a=Math.min(eio(cl((lt-s0)/.25)),1-eio(cl((lt-e0)/.9)));
-      const fs=(f.fs||.03)*iw*1.12;x0.font=`700 ${fs}px Caveat,'Playpen Sans Arabic',${FT}`;
+      const fs=(f.fs||.03)*iw;x0.font=`800 ${fs}px ${FT}`;
       const w=tick?fs*1.6:Math.max(x0.measureText(txt).width+.014*iw,(f.bw||0)*iw*1.05),h=tick?fs*1.6:Math.max(fs*1.3,(f.bh||0)*ih*1.25),X=f.x*iw,Y=f.y*ih;
       if(a>0){x0.save();x0.globalAlpha=ga*a;
         if(tick){const pr=cl((lt-t0)/dT),u=h*.5,P=[[-.55,.0],[-.15,.45],[.6,-.5]];x0.strokeStyle="#059669";x0.lineWidth=Math.max(6/z,fs*.28);x0.lineCap="round";x0.lineJoin="round";x0.beginPath();x0.moveTo(X+P[0][0]*u,Y+P[0][1]*u);
