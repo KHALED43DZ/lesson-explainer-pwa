@@ -75,7 +75,7 @@ button:disabled{opacity:.45;cursor:default}
 .pj{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
 .pt{flex:1;min-width:0}.pt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt small{display:block;color:var(--mute)}
 .hide{display:none!important}
-#gear{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:8px;z-index:60;width:34px;height:34px;min-width:0;padding:0;border-radius:50%;font-size:1rem;line-height:1;background:var(--card);color:var(--ink);border:1px solid var(--line);opacity:.88;display:flex;align-items:center;justify-content:center}
+#gear{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:12px;z-index:60;width:46px;height:46px;min-width:0;padding:0;border-radius:12px;font-size:1.5rem;line-height:1;background:var(--card);color:var(--ink);border:2px solid var(--acc,#4f9dff);box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:1;display:flex;align-items:center;justify-content:center}
 #set.ovl{position:fixed;inset:0;z-index:55;overflow:auto;border-radius:0;max-width:none;margin:0;padding:56px 16px 28px;background:var(--bg)}
 #msg{color:var(--mark);margin-top:10px}
 .spin{display:inline-block;width:16px;height:16px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:rot 1s linear infinite;vertical-align:middle;margin-inline-end:8px}
@@ -86,7 +86,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <body>
 <button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.7</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.8</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -626,9 +626,9 @@ const MASCOT=new Image();MASCOT.src="data:image/webp;base64,UklGRpwzAgBXRUJQVlA4
 function drawPageLabel(x0,lt,out){const pg=$("lpg").value.trim(),sb=$("sub").value.trim(),lvT=$("lvl").value,xR=VW-120;
   const big=pg?"صفحة "+pg:(sb||(title||"").trim());if(!big)return;
   const e=eio(Math.min(1,Math.max(0,lt-.5)/.9));x0.save();x0.direction="rtl";x0.textBaseline="middle";x0.textAlign="center";
-  x0.font="800 260px "+FT;const w0=x0.measureText(big).width,f0=Math.min(260,260*1500/w0),f1=76;
+  x0.font="800 260px "+FT;const w0=x0.measureText(big).width,f0=Math.min(260,260*1500/w0),f1=64;
   x0.font=`800 ${f1}px ${FT}`;const w1=x0.measureText(big).width;
-  const cx0=VW/2,cy0=VH/2-50,cx1=xR-w1/2,cy1=442,f=pg?f0+(f1-f0)*e:f0,cx=pg?cx0+(cx1-cx0)*e:cx0,cy=pg?cy0+(cy1-cy0)*e:cy0;
+  const cx0=VW/2,cy0=VH/2-50,cx1=xR-250-30-w1/2,cy1=517,f=pg?f0+(f1-f0)*e:f0,cx=pg?cx0+(cx1-cx0)*e:cx0,cy=pg?cy0+(cy1-cy0)*e:cy0;
   const m=(a,b)=>Math.round(a+(b-a)*e),col=pg?`rgb(${m(255,56)},${m(255,214)},${m(255,255)})`:"#fff",al=(pg?1:1-e)*out;
   x0.globalAlpha=al;x0.shadowColor="rgba(0,10,40,.55)";x0.shadowBlur=24;x0.fillStyle=col;x0.font=`800 ${f}px ${FT}`;x0.fillText(big,cx,cy);
   const sub=(pg?[sb,lvT]:[lvT]).filter(x=>x&&!/^—/.test(x)).join("   •   ");
@@ -645,16 +645,16 @@ function drawCover(x0,lt,out){out=out==null?1:out;const a=eio(Math.min(1,Math.ma
     x0.shadowColor="rgba(0,10,40,.5)";x0.shadowBlur=50;x0.shadowOffsetY=24;x0.fillStyle="#fff";rr(x0,-cw/2-14,-ch/2-14,cw+28,ch+28,26);x0.fill();
     x0.shadowColor="transparent";x0.save();rr(x0,-cw/2,-ch/2,cw,ch,14);x0.clip();x0.drawImage(im,-cw/2,-ch/2,cw,ch);x0.restore();x0.restore()}
   if(LOGO.el){const e=LOGO.el,r=46,cx=130,cy=108,m=Math.min(e.width,e.height);x0.save();x0.fillStyle="#fff";x0.beginPath();x0.arc(cx,cy,r+4,0,7);x0.fill();x0.beginPath();x0.arc(cx,cy,r,0,7);x0.clip();x0.drawImage(e,(e.width-m)/2,(e.height-m)/2,m,m,cx-r,cy-r,2*r,2*r);x0.restore()}
-  if(MASCOT.complete&&MASCOT.naturalWidth){const mh=380,mw=mh*MASCOT.naturalWidth/MASCOT.naturalHeight,mx=xR-170-mw,my=24,pop=.9+.1*a;
+  if(MASCOT.complete&&MASCOT.naturalWidth){const mh=420,mw=mh*MASCOT.naturalWidth/MASCOT.naturalHeight,mx=xR-170-mw,my=24,pop=.9+.1*a;
     x0.save();const g2=x0.createRadialGradient(mx+mw/2,my+mh*.55,30,mx+mw/2,my+mh*.55,400);g2.addColorStop(0,"rgba(56,214,255,.30)");g2.addColorStop(1,"rgba(56,214,255,0)");x0.fillStyle=g2;x0.fillRect(mx-300,my-60,mw+600,mh+200);
     x0.translate(mx+mw/2-sl*.6,my+mh);x0.scale(pop,pop);x0.shadowColor="rgba(0,10,40,.45)";x0.shadowBlur=32;x0.shadowOffsetY=14;x0.drawImage(MASCOT,-mw/2,-mh,mw,mh);x0.restore()}
   x0.translate(sl,0);
   const dg=(lv.match(/\d/)||[])[0]||String({"الأولى":1,"الثانية":2,"الثالثة":3,"الرابعة":4,"الخامسة":5}[(lv.match(/(الأولى|الثانية|الثالثة|الرابعة|الخامسة)/)||[])[1]]||"");
   if(dg){const cx=xR-80,cy=300,r=80;x0.fillStyle="#fff";x0.beginPath();x0.arc(cx,cy,r,0,7);x0.fill();x0.textAlign="center";x0.fillStyle="#0a2463";x0.font=`800 104px ${FT}`;x0.fillText(dg,cx,cy-12);
     x0.fillStyle="#1b6fe0";x0.font=`700 30px ${FT}`;x0.fillText("ابتدائي",cx,cy+54)}
-  x0.textAlign="center";x0.font=`700 44px ${FT}`;const cw2=250;x0.strokeStyle="rgba(255,255,255,.85)";x0.lineWidth=3;rr(x0,xR-cw2,504,cw2,80,40);x0.stroke();x0.fillStyle="#fff";x0.fillText("شرح درس",xR-cw2/2,546);
+  x0.textAlign="center";x0.font=`700 44px ${FT}`;const cw2=250;x0.strokeStyle="rgba(255,255,255,.85)";x0.lineWidth=3;rr(x0,xR-cw2,476,cw2,80,40);x0.stroke();x0.fillStyle="#fff";x0.fillText("شرح درس",xR-cw2/2,518);
   let fs=108,L;for(;fs>=64;fs-=6){x0.font=`800 ${fs}px ${FT}`;L=wrap(x0,ttl,1000);if(L.length<=2)break}
-  const lh=fs*1.22,y0=696;x0.textAlign="right";x0.font=`800 ${fs}px ${FT}`;
+  const lh=fs*1.22,y0=670;x0.textAlign="right";x0.font=`800 ${fs}px ${FT}`;
   const lat=!/[\u0600-\u06FF]/.test(ttl);
   L.forEach((l,k)=>{const ws=l.split(" ").filter(Boolean),sp=x0.measureText(" ").width;
     if(lat){const tw=ws.reduce((q,w)=>q+x0.measureText(w).width,0)+sp*(ws.length-1);let x=xR-tw;x0.textAlign="left";x0.direction="ltr";ws.forEach((w,j)=>{x0.fillStyle=(k===L.length-1&&j===ws.length-1)?CY:"#fff";x0.fillText(w,x,y0+k*lh);x+=x0.measureText(w).width+sp});x0.textAlign="right";x0.direction="rtl";return}
