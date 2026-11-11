@@ -75,6 +75,20 @@ button:disabled{opacity:.45;cursor:default}
 .pj{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
 .pt{flex:1;min-width:0}.pt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt small{display:block;color:var(--mute)}
 .hide{display:none!important}
+#lib{margin-bottom:12px}.libh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.bk{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:var(--card)}
+.bk .bi{flex:1;min-width:0}.bk .bi b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bk .bi small{color:var(--mute)}
+#bkv{position:fixed;inset:0;z-index:58;background:var(--bg);overflow:auto;padding:12px 12px 90px}
+.bkbar{display:flex;align-items:center;gap:10px;padding-top:calc(52px + env(safe-area-inset-top,0px));margin-bottom:6px}.bkbar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.pgc{position:relative;border:2px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;aspect-ratio:var(--ar,.71);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pgc canvas{width:100%;height:100%;display:block}
+.pgc .pl{position:absolute;bottom:0;inset-inline:0;background:rgba(15,23,42,.78);color:#fff;font-size:.72rem;text-align:center;padding:1px 0}
+.pgc .dn{position:absolute;top:3px;inset-inline-end:3px;background:#16a34a;color:#fff;border-radius:50%;width:20px;height:20px;font-size:.75rem;display:none;align-items:center;justify-content:center}
+.pgc.done .dn{display:flex}.pgc.sel{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.45)}
+.pgc .sn{position:absolute;top:3px;inset-inline-start:3px;background:#2563eb;color:#fff;border-radius:50%;width:22px;height:22px;font-size:.8rem;display:none;align-items:center;justify-content:center;font-weight:700}.pgc.sel .sn{display:flex}
+.pgc.nx{border-color:#f59e0b}
+.bkfoot{position:fixed;bottom:0;inset-inline:0;z-index:59;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
 .slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .slot{position:relative}
 .slot .drop{margin:0;min-height:150px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;text-align:center;font-size:.92rem}
@@ -90,12 +104,14 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </style>
 </head>
 <body>
+<div id="bkv" class="hide"><div class="bkbar"><button type="button" class="ghost" id="bkc">✕ إغلاق</button><b id="bkt"></b></div><div id="bkh" class="sub"></div><div id="bkg"></div><div class="bkfoot"><span id="bksel">اضغط صفحة لاختيارها (حتى صفحتين)</span><button type="button" id="bkgo" disabled>متابعة ←</button></div></div>
 <button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v3.9</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.0</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
+  <div id="lib"><div class="libh"><b>📚 كتبي</b><button type="button" class="ghost" id="bkadd">＋ إضافة كتاب PDF</button><input id="bkf" type="file" accept="application/pdf" hidden></div><div id="bklist"></div></div>
   <div class="slots">
     <div class="slot" id="sl1"><label class="drop" for="f"><span>① الصورة الأولى</span><img id="th1" alt=""><input id="f" type="file" accept="image/*" hidden></label><button type="button" class="sx hide" id="x1" aria-label="إزالة الصورة الأولى">✕</button></div>
     <div class="slot" id="sl2"><label class="drop" for="f2"><span>② الصورة الثانية (تكملة، اختيارية)</span><img id="th2" alt=""><input id="f2" type="file" accept="image/*" hidden></label><button type="button" class="sx hide" id="x2" aria-label="إزالة الصورة الثانية">✕</button></div>
@@ -201,6 +217,60 @@ function analyze(c){
       if(on&&!on0){on0=true;sx=x}if(!on&&on0){on0=false;ticks.push((sx+x)/2/W)}}
     if(ticks.length>=2)out.push({y:((a.first+a.last)/2+.5)/H,ticks})});
   return{blanks,axes:out}}
+// ---- مكتبة الكتب (PDF) ----
+const BKDB={db:null,async open(){if(this.db)return this.db;this.db=await new Promise((res,rej)=>{const r=indexedDB.open("lesson-books",1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore("books",{keyPath:"id"});d.createObjectStore("files",{keyPath:"id"})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});return this.db},
+  async tx(st,mode,fn){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction(st,mode),out=fn(t);t.oncomplete=()=>res(out&&out.result!==undefined?out.result:undefined);t.onerror=t.onabort=()=>rej(t.error)})},
+  put(st,v){return this.tx(st,"readwrite",t=>{t.objectStore(st).put(v)})},get(st,k){return this.tx(st,"readonly",t=>t.objectStore(st).get(k))},all(st){return this.tx(st,"readonly",t=>t.objectStore(st).getAll())},
+  del(id){return this.tx(["books","files"],"readwrite",t=>{t.objectStore("books").delete(id);t.objectStore("files").delete(id)})}};
+let PDFJS=null,pdfDoc=null,pdfTask=null,curBook=null,bkMeta=null,selPages=[],thumbQ=Promise.resolve(),thumbObs=null;
+async function loadPdfjs(){if(PDFJS)return PDFJS;PDFJS=await import("./pdfjs/pdf.min.js");PDFJS.GlobalWorkerOptions.workerSrc=new URL("./pdfjs/pdf.worker.min.js",location.href).href;return PDFJS}
+const bkPrinted=(m,n)=>m.offset!=null?n-m.offset:null;
+const bkLabel=(m,n)=>{const p=bkPrinted(m,n);return p!=null&&p>=1?"ص"+p:"#"+n};
+async function addBook(file){$("msg").textContent="جارٍ حفظ الكتاب...";
+  try{const L=await loadPdfjs(),task=L.getDocument({data:new Uint8Array(await file.arrayBuffer())}),doc=await task.promise,n=doc.numPages;try{await task.destroy()}catch(e){}
+    const id="b"+Date.now().toString(36);await BKDB.put("files",{id,blob:file});
+    await BKDB.put("books",{id,name:file.name.replace(/\.pdf$/i,""),size:file.size,pages:n,added:Date.now(),updated:Date.now(),offset:null,done:{},last:0});
+    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+    $("msg").textContent="";renderBooks()}
+  catch(e){$("msg").textContent="تعذّر قراءة ملف PDF: "+(e.message||e)}}
+async function renderBooks(){try{const L=(await BKDB.all("books")||[]).sort((a,b)=>b.updated-a.updated),box=$("bklist");box.innerHTML="";
+  L.forEach(m=>{const r=document.createElement("div");r.className="bk";const mb=(m.size/1048576).toFixed(1),pr=m.last?("أُنجز حتى "+bkLabel(m,m.last)):"لم تبدأ بعد";
+    r.innerHTML=`<div class="bi"><b></b><small></small></div><button type="button">فتح</button><button class="ghost" type="button">🗑</button>`;
+    r.querySelector("b").textContent=m.name;r.querySelector("small").textContent=m.pages+" صفحة • "+mb+" ميغابايت • "+pr;
+    const[o,d]=r.querySelectorAll("button");o.onclick=()=>openBook(m.id);d.onclick=async()=>{if(confirm("حذف الكتاب «"+m.name+"» وتقدّمه؟")){await BKDB.del(m.id);renderBooks()}};box.appendChild(r)})}catch(e){}}
+function bkSelUi(){const m=bkMeta;$("bksel").textContent=selPages.length?selPages.map((p,i)=>(i?"الثانية: ":"الأولى: ")+bkLabel(m,p)).join(" • "):"اضغط صفحة لاختيارها (حتى صفحتين)";$("bkgo").disabled=!selPages.length;
+  document.querySelectorAll("#bkg .pgc").forEach(c=>{const n=+c.dataset.n,k=selPages.indexOf(n);c.classList.toggle("sel",k>=0);c.querySelector(".sn").textContent=k>=0?(k?"②":"①"):""})}
+function bkDrawThumb(c){const n=+c.dataset.n;thumbQ=thumbQ.then(async()=>{if(!pdfDoc||c.dataset.ok)return;try{const p=await pdfDoc.getPage(n),v0=p.getViewport({scale:1}),v=p.getViewport({scale:200/v0.width}),cv=c.querySelector("canvas");cv.width=Math.round(v.width);cv.height=Math.round(v.height);
+    const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,cv.width,cv.height);await p.render({canvasContext:x,viewport:v}).promise;p.cleanup();c.dataset.ok=1}catch(e){}})}
+async function openBook(id){$("msg").textContent="جارٍ فتح الكتاب...";
+  try{const m=await BKDB.get("books",id),f=await BKDB.get("files",id);if(!m||!f)throw new Error("الكتاب غير موجود.");const L=await loadPdfjs();
+    if(pdfTask){try{await pdfTask.destroy()}catch(e){}}pdfTask=L.getDocument({data:new Uint8Array(await f.blob.arrayBuffer())});pdfDoc=await pdfTask.promise;bkMeta=m;selPages=[];
+    const p1=await pdfDoc.getPage(1),v1=p1.getViewport({scale:1}),g=$("bkg");g.innerHTML="";g.style.setProperty("--ar",(v1.width/v1.height).toFixed(4));
+    $("bkt").textContent=m.name;$("bkh").textContent=m.offset!=null?"الأرقام المعروضة هي أرقام الصفحات المطبوعة في الكتاب.":"الأرقام (#) ترتيب الصفحة في ملف PDF، وستُحسب أرقام الكتاب تلقائيًا بعد أول شرح.";
+    if(thumbObs)thumbObs.disconnect();thumbObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){thumbObs.unobserve(e.target);bkDrawThumb(e.target)}}),{root:$("bkv"),rootMargin:"500px"});
+    const nxt=Math.min(m.pages,(m.last||0)+1);
+    for(let n=1;n<=m.pages;n++){const c=document.createElement("div");c.className="pgc"+(m.done[n]?" done":"")+(n===nxt&&m.last?" nx":"");c.dataset.n=n;
+      c.innerHTML=`<canvas></canvas><span class="pl"></span><span class="dn">✓</span><span class="sn"></span>`;c.querySelector(".pl").textContent=bkLabel(m,n);
+      let tm=null,lp=false;c.onpointerdown=()=>{lp=false;tm=setTimeout(async()=>{lp=true;const mm=await BKDB.get("books",m.id);mm.done[n]=!mm.done[n];mm.last=Math.max(0,...Object.keys(mm.done).filter(k=>mm.done[k]).map(Number));mm.updated=Date.now();await BKDB.put("books",mm);Object.assign(m,mm);c.classList.toggle("done",!!mm.done[n]);if(navigator.vibrate)navigator.vibrate(30);renderBooks()},650)};
+      const cl=()=>clearTimeout(tm);c.onpointerup=cl;c.onpointerleave=cl;c.onpointercancel=cl;
+      c.onclick=()=>{if(lp){lp=false;return}const k=selPages.indexOf(n);if(k>=0)selPages.splice(k,1);else{if(selPages.length>=2)selPages.shift();selPages.push(n);selPages.sort((a,b)=>a-b)}bkSelUi()};
+      g.appendChild(c);thumbObs.observe(c)}
+    $("bkv").classList.remove("hide");$("msg").textContent="";bkSelUi();
+    const tg=g.children[nxt-1];if(tg&&m.last)setTimeout(()=>tg.scrollIntoView({block:"center"}),60)}
+  catch(e){$("msg").textContent="تعذّر فتح الكتاب: "+(e.message||e)}}
+function closeBook(){$("bkv").classList.add("hide");if(thumbObs){thumbObs.disconnect();thumbObs=null}if(pdfTask){try{pdfTask.destroy()}catch(e){}pdfTask=null;pdfDoc=null}$("bkg").innerHTML=""}
+async function pageToFile(n){const p=await pdfDoc.getPage(n),v0=p.getViewport({scale:1}),v=p.getViewport({scale:Math.min(3,1650/v0.width)}),c=document.createElement("canvas");c.width=Math.round(v.width);c.height=Math.round(v.height);
+  const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);await p.render({canvasContext:x,viewport:v}).promise;p.cleanup();
+  return new Promise(r=>c.toBlob(b=>r(new File([b],"p"+n+".jpg",{type:"image/jpeg"})),"image/jpeg",.9))}
+async function useSelected(){if(!selPages.length)return;$("bkgo").disabled=true;$("bksel").textContent="جارٍ تجهيز الصفحات...";
+  try{const pg=selPages.slice(),fs=[];for(const n of pg)fs.push(await pageToFile(n));
+    SL[0]=await loadImg(fs[0]);SL[1]=fs[1]?await loadImg(fs[1]):null;refreshSlots();curBook={id:bkMeta.id,pages:pg};closeBook();
+    $("msg").textContent="تم تحميل "+(pg.length>1?"الصفحتين":"الصفحة")+" من الكتاب. اختر المستوى والمادة ثم «إنشاء الشرح».";window.scrollTo({top:0,behavior:"smooth"})}
+  catch(e){$("msg").textContent="تعذّر تجهيز الصفحات: "+(e.message||e);$("bkgo").disabled=false}}
+async function learnOffset(printed){if(!curBook||!printed)return;try{const m=await BKDB.get("books",curBook.id);if(!m)return;const off=curBook.pages[0]-printed;if(Math.abs(off)>400||m.offset===off)return;m.offset=off;await BKDB.put("books",m);renderBooks()}catch(e){}}
+async function markBookDone(){if(!curBook)return;try{const m=await BKDB.get("books",curBook.id);if(!m)return;curBook.pages.forEach(p=>{m.done[p]=true});m.last=Math.max(m.last||0,...curBook.pages);m.updated=Date.now();await BKDB.put("books",m);renderBooks()}catch(e){}}
+$("bkadd").onclick=()=>$("bkf").click();$("bkf").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(f)await addBook(f)};
+$("bkc").onclick=closeBook;$("bkgo").onclick=useSelected;renderBooks();
 // ---- رفع الصور ----
 function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const m=2200,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
@@ -213,10 +283,10 @@ function refreshSlots(){imgs=SL.filter(Boolean);
   [1,2].forEach(n=>{const i=SL[n-1];$("sl"+n).classList.toggle("has",!!i);$("x"+n).classList.toggle("hide",!i);if(i)$("th"+n).src=i.url;else $("th"+n).removeAttribute("src")});
   $("go").disabled=!SL[0]}
 [1,2].forEach(n=>{const inp=$(n===1?"f":"f2");
-  inp.onchange=async e=>{const f=e.target.files[0];$("msg").textContent="";if(!f)return;
+  inp.onchange=async e=>{const f=e.target.files[0];$("msg").textContent="";if(!f)return;curBook=null;
     try{SL[n-1]=await loadImg(f)}catch(x){SL[n-1]=null;$("msg").textContent="تعذّر قراءة الصورة."}
     refreshSlots();if(!SL[0]&&SL[1])$("msg").textContent="أضف الصورة الأولى أولًا."};
-  $("x"+n).onclick=()=>{SL[n-1]=null;inp.value="";refreshSlots();$("msg").textContent=""}});
+  $("x"+n).onclick=()=>{curBook=null;SL[n-1]=null;inp.value="";refreshSlots();$("msg").textContent=""}});
 
 
 (()=>{const o=$("ttlopt");try{o.value=localStorage.getItem("ttlopt")||"0"}catch(e){}o.onchange=()=>{try{localStorage.setItem("ttlopt",o.value)}catch(e){}}})();
@@ -273,7 +343,7 @@ $("go").onclick=async()=>{
     }
     return r}));
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
-    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";{const m1=(String(j.page||"").match(/\d+/)||[""])[0],m2=(String(j.page2||"").match(/\d+/)||[""])[0];let pg=m1;if(imgs.length>1){const q=m2||(m1?String(+m1+1):"");if(q)pg=m1?m1+"-"+q:q}$("lpg").value=pg}
+    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";{const m1=(String(j.page||"").match(/\d+/)||[""])[0],m2=(String(j.page2||"").match(/\d+/)||[""])[0];let pg=m1;if(imgs.length>1){const q=m2||(m1?String(+m1+1):"");if(q)pg=m1?m1+"-"+q:q}$("lpg").value=pg;if(m1)learnOffset(+m1)}
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>{if(!f)return f;const wt=z=>{let n=0;for(const c of z)n+=/[.,!?؟،:؛]/.test(c)?8:1;return n},sy=String(t.say||""),wh=String(f.when||""),ix=wh?sy.indexOf(wh):-1,ix2=ix<0&&f.text?sy.indexOf(String(f.text)):-1,pi=ix>=0?ix:ix2,pl=ix>=0?wh.length:ix2>=0?String(f.text).length:0;return{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text,pos:pi>=0&&sy?Math.min(.98,Math.max(.02,(wt(sy.slice(0,pi))+wt(sy.slice(pi,pi+pl))/2)/wt(sy))):null}}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length>1){const hs=t.song.map(l=>l.box[3]).sort((a,b)=>a-b),mh=hs[hs.length>>1]||.02,yc=l=>l.box[1]+l.box[3]/2,rows=[];[...t.song].sort((a,b)=>yc(a)-yc(b)).forEach(l=>{const r=rows.find(R=>Math.abs(R.y-yc(l))<mh*.6);if(r){r.items.push(l);r.y=(r.y*(r.items.length-1)+yc(l))/r.items.length}else rows.push({y:yc(l),items:[l]})});
         rows.sort((a,b)=>a.y-b.y);rows.forEach(R=>R.items.sort((a,b)=>a.box[0]-b.box[0]));t.song=rows.flatMap(R=>R.items);t.say=rows.map(R=>R.items.map(l=>l.text).join(" ")).join("\n")}
@@ -474,7 +544,7 @@ const projName=()=>lessonLine()||title||"درس";
 async function saveMeta(){if(!curPid)return;try{await DB.put("meta",{id:curPid,name:projName(),updated:Date.now(),n:steps.length+1,done:steps.filter(stepOk).length+((OUT.buf&&OUT.sig===sigFor(OUT))?1:0)})}catch(e){}}
 async function saveProject(){if(!curPid||!steps.length)return;try{
   const f={};["lvl","sub","lno","lpg","mdl","tmt","gv","tsh","len"].forEach(k=>f[k]=$(k).value);
-  await DB.put("data",{id:curPid,title,fields:f,imgs:imgs.map(i=>({blob:i.blob,w:i.w,h:i.h,blanks:i.blanks,axes:i.axes})),steps:steps.map(s=>{const{buf,url,wav,...r}=s;return r})});
+  await DB.put("data",{id:curPid,title,book:curBook,fields:f,imgs:imgs.map(i=>({blob:i.blob,w:i.w,h:i.h,blanks:i.blanks,axes:i.axes})),steps:steps.map(s=>{const{buf,url,wav,...r}=s;return r})});
   await saveMeta();renderProjects()}catch(e){}}
 async function saveAudio(key){const o=key==="outro"?OUT:steps[key];if(!curPid||!o||!o.wav)return;
   try{await DB.put("audio",{k:curPid+":"+key,pid:curPid,key:String(key),sig:o.sig,wav:o.wav});await saveMeta();renderProjects()}catch(e){}}
@@ -487,7 +557,7 @@ async function renderProjects(){try{const L=(await DB.all("meta")||[]).sort((a,b
 async function openProject(id){stopAll();$("msg").textContent="جارٍ فتح المشروع...";
   try{const d=await DB.get("data",id);if(!d)throw new Error("المشروع غير موجود.");
     const f=d.fields||{};["lvl","sub","lno","lpg","mdl","tmt","gv","tsh","len"].forEach(k=>{if(f[k]!=null&&$(k))$(k).value=f[k]});
-    imgs=d.imgs.map(i=>({...i,url:URL.createObjectURL(i.blob)}));steps=d.steps;title=d.title||"";curPid=id;curDia="dz";audioDia=null;
+    imgs=d.imgs.map(i=>({...i,url:URL.createObjectURL(i.blob)}));steps=d.steps;title=d.title||"";curBook=d.book||null;curPid=id;curDia="dz";audioDia=null;
     steps.forEach(s=>{s.buf=s.url=s.wav=null});OUT.buf=OUT.url=OUT.wav=OUT.sig=null;
     const ac=new (window.AudioContext||window.webkitAudioContext)();
     for(const a of await DB.byPid(id)){const o=a.key==="outro"?OUT:steps[+a.key];if(!o||a.sig!==sigFor(o))continue;
@@ -798,7 +868,7 @@ $("dv").onclick=async()=>{
   const rec=new MediaRecorder(stream,{mimeType:mt,videoBitsPerSecond:RW>1500?10e6:5e6}),ch=[];let wl=null;
   try{wl=await navigator.wakeLock.request("screen")}catch(e){}
   rec.ondataavailable=e=>{if(e.data.size)ch.push(e.data)};
-  rec.onstop=()=>{$("cx").classList.add("hide");const mp4=mt.startsWith("video/mp4");if(cancelled){vst("أُلغي التسجيل.");$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{});return}dl(new Blob(ch,{type:mt.split(";")[0]}),vname()+"."+(mp4?"mp4":"webm"));
+  rec.onstop=()=>{$("cx").classList.add("hide");const mp4=mt.startsWith("video/mp4");if(cancelled){vst("أُلغي التسجيل.");$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{});return}dl(new Blob(ch,{type:mt.split(";")[0]}),vname()+"."+(mp4?"mp4":"webm"));markBookDone();
     vst("تم تحميل الفيديو ✅ "+RW+"×"+cv.height);$("dv").disabled=false;if(ac)ac.close();if(wl)wl.release().catch(()=>{})};
   rec.start(500);const t0=performance.now()+250;
   const tick=()=>{const t=Math.max(0,(performance.now()-t0)/1000);if(t>=T.total||cancelled){rec.stop();return}
