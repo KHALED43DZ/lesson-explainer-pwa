@@ -1,4 +1,4 @@
-const V="lesson-explainer-v4.1";
+const V="lesson-explainer-v4.2";
 const SHELL=["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png","icons/apple-touch-icon.png"]; 
 const PDF=["pdfjs/pdf.min.js","pdfjs/pdf.worker.min.js"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(async c=>{await c.addAll(SHELL);await Promise.all(PDF.map(p=>c.add(p).catch(()=>{})))}).then(()=>self.skipWaiting()))});

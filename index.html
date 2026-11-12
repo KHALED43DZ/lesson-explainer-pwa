@@ -107,7 +107,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <div id="bkv" class="hide"><div class="bkbar"><button type="button" class="ghost" id="bkc">✕ إغلاق</button><b id="bkt"></b></div><div id="bkh" class="sub"></div><div id="bkg"></div><div class="bkfoot"><span id="bksel">اضغط صفحة لاختيارها (حتى صفحتين)</span><button type="button" id="bkgo" disabled>متابعة ←</button></div></div>
 <button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.1</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.2</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -174,7 +174,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let TMO=null,OVMSG="",SLK=1;
+let TMO=null,OVMSG="",SLK=1,STG="",PART1=null;
 const MODELS=[["gemini-3.8-flash","مجاني","بطيء"],["gemini-3.5-flash-lite","مجاني","سريع"],["gemini-3.1-flash-lite","مجاني","سريع"],["gemini-3.1-pro-preview","مجاني","بطيء"],["gemini-3.6-flash","مدفوع","سريع"],["gemini-3-flash-preview","مدفوع","سريع"],["gemini-4-argon","مدفوع","بطيء"]];
 function fillModels(el,def){el.innerHTML=MODELS.map(([id,pay,sp])=>`<option value="${id}">${id} — ${pay} • ${sp}</option>`).join("")}
 const TM=()=>(TMO||$("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
@@ -294,35 +294,36 @@ const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","
 // ---- تحليل الدرس ----
 $("go").onclick=async()=>{
   $("msg").textContent="";$("go").disabled=true;$("lpg").value="";$("lno").value="";
-  const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس... '+Math.round((Date.now()-_t0)/1000)+" ث"+(OVMSG?" — "+OVMSG:"")},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
+  const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس'+STG+'... '+Math.round((Date.now()-_t0)/1000)+" ث"+(OVMSG?" — "+OVMSG:"")},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
   try{
     if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
     const LEN={s:"5 إلى 6 خطوات",m:"7 إلى 9 خطوات",l:"10 إلى 13 خطوة مع تفصيل أكبر لكل مثال"};
-    const prompt=`أنت معلم ابتدائي ممتاز. الصور المرفقة (عددها ${imgs.length}) صفحات من كتاب مدرسي ابتدائي، مرتبة: الأولى رقمها 0${imgs.length>1?" والثانية رقمها 1. الصورة الثانية تكملة لنفس الدرس في الصفحة التالية للأولى: ابدأ بشرح الصفحة الأولى كاملة ثم الثانية، ورتّب الخطوات بحيث تأتي خطوات الصورة 0 أولًا ثم خطوات الصورة 1. لا تذكر عنوانًا للصفحة الثانية ولا تعلن عن صفحة جديدة، بل تابع الشرح بسلاسة كأنه استمرار، وخذ عنوان الدرس من الصورة الأولى فقط":""}.
-حلّل الدرس ثم اشرحه لتلميذ بالدارجة الجزائرية البسيطة والودودة (كما يكلّم معلم جزائري تلاميذ الابتدائي، مع إبقاء المصطلحات الرياضية المعتادة في المدرسة الجزائرية) في ${LEN[$("len").value]} متسلسلة (مقدمة، ثم الأفكار، ثم الأمثلة، ثم خلاصة).
+    const LENP={s:"3 إلى 4 خطوات",m:"4 إلى 5 خطوات",l:"5 إلى 7 خطوات مع تفصيل أكبر لكل مثال"};
+    const mkPrompt=o=>{const part=o.part||0,LX=part?LENP:LEN;return `أنت معلم ابتدائي ممتاز. ${part===1?"الصورة المرفقة هي الصفحة الأولى من درس يمتد على صفحتين. اشرح هذه الصفحة وحدها: ابدأ بالمقدمة ثم الشرح، وبلا خلاصة ولا خاتمة ولا وداع لأن الشرح سيكمل بعدك في الصفحة التالية.":part===2?"الصورة المرفقة هي الصفحة الثانية، وهي تكملة لدرس بدأ شرحه في الصفحة السابقة وعنوانه: «"+o.title+"». تابع الشرح مباشرة من حيث توقّفت دون ذكر عنوان الدرس ودون مقدمة ودون ترحيب ودون إعلان عن صفحة جديدة، كأنك تكمل كلامك. آخر ما قيل في الجزء السابق: «"+o.tail+"». ثم أنهِ الدرس بخلاصة قصيرة وخاتمة.":"الصورة المرفقة صفحة من كتاب مدرسي ابتدائي."}
+حلّل الدرس ثم اشرحه لتلميذ بالدارجة الجزائرية البسيطة والودودة (كما يكلّم معلم جزائري تلاميذ الابتدائي، مع إبقاء المصطلحات الرياضية المعتادة في المدرسة الجزائرية) في ${LX[$("len").value]} متسلسلة (${part===1?"مقدمة، ثم الأفكار، ثم الأمثلة، بلا خلاصة ولا خاتمة":part===2?"تكملة مباشرة بلا مقدمة، ثم الأفكار، ثم الأمثلة، ثم خلاصة وخاتمة":"مقدمة، ثم الأفكار، ثم الأمثلة، ثم خلاصة"}).
 كل خطوة تشير إلى موضع محدد في الصورة (كلمة أو شكل أو جملة أو تمرين).
 المادة المُدخلة: ${$("sub").value.trim()||"غير محددة"}.
-في أول خطوة (المقدمة) انطق عنوان الدرس بهذه الصيغة بالضبط: «${TOPT[+$("ttlopt").value]}» ثم عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ولا تستعمل صيغة افتتاح أخرى مثل «درس اليوم»، ثم أكمل المقدمة.\nإن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام والعدد المذكور أعلاه:
-(1) غطِّ كل المفردات والجمل والعبارات الظاهرة في الصفحة دون إهمال أي منها، بمعدل عنصر واحد إلى 4 عناصر في كل خطوة. عدد الخطوات يتبع محتوى الصفحة فعلًا (عدد العناصر ÷ 3 تقريبًا، مع مقدمة وخلاصة قصيرتين)، ولا يقل عن 4 ولا يزيد عن 16. ممنوع الحشو واختلاق عناصر غير موجودة أو تكرار نفس العنصر في خطوات مختلفة.
+${part===2?"":`في أول خطوة (المقدمة) انطق عنوان الدرس بهذه الصيغة بالضبط: «${TOPT[+$("ttlopt").value]}» ثم عنوان الدرس كما يظهر في الصورة (نفس قيمة title)، ولا تستعمل صيغة افتتاح أخرى مثل «درس اليوم»، ثم أكمل المقدمة.`}\nإن كان الدرس في لغة أجنبية (فرنسية أو إنجليزية، سواء ذُكرت المادة أو استُنتج ذلك من الصور) فاتبع هذه القواعد بدل الشرح العام والعدد المذكور أعلاه:
+(1) غطِّ كل المفردات والجمل والعبارات الظاهرة في الصفحة دون إهمال أي منها، بمعدل عنصر واحد إلى 4 عناصر في كل خطوة. عدد الخطوات يتبع محتوى الصفحة فعلًا (عدد العناصر ÷ 3 تقريبًا، ${part===1?"مع مقدمة قصيرة فقط":part===2?"مع خلاصة قصيرة فقط":"مع مقدمة وخلاصة قصيرتين"})، ${part?"ولا يقل عن 3 ولا يزيد عن 10":"ولا يقل عن 4 ولا يزيد عن 16"}. ممنوع الحشو واختلاق عناصر غير موجودة أو تكرار نفس العنصر في خطوات مختلفة.
 (2) في say اكتب الكلمة أو الجملة الأجنبية بحروفها اللاتينية كما في الكتاب داخل كلام بالدارجة: انطقها أولًا، ثم اشرح معناها بالدارجة، ثم أعدها مرة ثانية ليحفظها الطفل، واطلب منه الترديد معك (مثل: «عاود معايا»).
 (3) شرح المعاني والقواعد بالدارجة الجزائرية فقط، أما الكلمات والجمل الأجنبية فتبقى بلغتها الأصلية دون نقلها إلى الحروف العربية.
 (4) اجعل pause بين 2 و3 بعد كل مجموعة ليردد الطفل.
-- page: رقم الصفحة المطبوع على الصورة الأولى (أرقام فقط، غالبًا في أسفل أحد الجانبين)، وpage2: رقم الصفحة المطبوع على الصورة الثانية إن وجدت. إن لم يظهر رقم بوضوح فاتركه فارغًا ولا تخمّن.
+- page: رقم الصفحة المطبوع على الصورة (أرقام فقط، غالبًا في أسفل أحد الجانبين). إن لم يظهر رقم بوضوح فاتركه فارغًا ولا تخمّن.
 تجاهل تمامًا أي علامة مائية أو توقيع أو خطوط ودوائر مرسومة باليد فوق الصفحة، ولا تعتبرها جزءًا من الدرس ولا تقرأها.
 أعد JSON فقط بلا أي نص آخر ولا علامات markdown بهذا الشكل:
-{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","page":"28","page2":"29","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"when":"نكتب هنا","text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
+{"title":"عنوان الدرس كما يظهر في الصورة (بدون رقم الدرس)","page":"28","steps":[{"image":0,"box":[x,y,w,h],"tool":"circle","say":"نص التعليق الصوتي لهذه الخطوة (جملة إلى ثلاث جمل قصيرة)","song":[{"text":"سطر من الأغنية","box":[x,y,w,h]}],"fills":[{"x":0.5,"y":0.5,"w":0.1,"when":"نكتب هنا","text":"133"}],"jumps":[{"x1":0.2,"x2":0.4,"y":0.5,"text":"+36"}],"pause":0}]}
 - box أرقام عشرية من 0 إلى 1: x,y الزاوية العليا اليسرى و w,h العرض والارتفاع، نسبةً إلى أبعاد الصورة. اجعله ضيقًا ومحكمًا حول عنصر واحد فقط، ولا تدمج عنصرين متباعدين أو شخصية مع تمرين. إن كانت الخطوة عامة استعمل null. اترك هامشًا صغيرًا حول العنصر.
 - tool واحدة من: circle (دائرة)، underline (خط تحت الكلمة)، rect (مستطيل)، highlight (تظليل)، arrow (سهم).
 - fills: استعمله في كل تمرين فيه فراغ أو مكان للإجابة داخل box: حرف ناقص، كلمة، عدد، علامة (> < = + -)، جملة تُرتَّب كلماتها، خانة أو سطر للكتابة، أو إكمال جملة. لكل فراغ عنصر: x,y مركز الفراغ بدقة (من 0 إلى 1 نسبةً للصورة كلها وليس لـ box)، وtext الجواب الصحيح فقط كما يُكتب في الفراغ (قصير: حرف أو كلمة أو عدد أو علامة؛ وفي الترتيب الجملة مرتبة)، وw عرض الفراغ تقريبًا نسبةً لعرض الصورة، وwhen عبارة قصيرة (من 2 إلى 5 كلمات) منسوخة حرفيًا من say تُنطق في اللحظة التي يجب أن تظهر فيها هذه الإجابة، مثل «نضع علامة صح» أو «نكتب هنا» أو الكلمة المطلوبة نفسها (يجب أن تُنطق قبل الجواب أو معه، وبنفس ترتيب الفراغات). لخانة يوضع فيها علامة صح اجعل text هو ✓ فقط. ضع من فراغ إلى ثلاثة في الخطوة الواحدة، واطرح السؤال في say ثم انطق الجواب. احسب الجواب بدقة ولا تخمّن، وإن لم تتأكد منه فلا تضع fills.
 - song اختياري: إن وجدت في الصفحة أغنية أو نشيدًا أو قافية (مثل I sing and have fun) فاجعل أول خطوة لها خطوة أغنية: say هو نص الأغنية كاملًا بلغتها الأصلية كما هو مكتوب، سطر في كل سطر، بلا ترجمة ولا إضافة؛ وbox يحيط بنص الأغنية كلها؛ وsong مصفوفة بسطور الأغنية بالترتيب الذي تُغنّى به. إن كانت الأغنية موزعة في عمودين فالأبيات تُقرأ صفًّا صفًّا: النصف الأيسر ثم الأيمن من الصف الأول، ثم الصف الثاني، وهكذا، وليس عمودًا كاملًا ثم العمود الآخر. لكل نصف سطر text وbox ضيق حوله وحده (من 0 إلى 1 نسبةً للصورة). إن تكرر مقطع في الصفحة فاذكره مرة واحدة. بعد خطوة الأغنية تابع الشرح العادي.
 - jumps اختياري: لكل قفزة على شريط عددي: x1 و x2 موضع علامتي البداية والنهاية، و y ارتفاع الخط، و text مقدار القفزة مثل +36.
 - pause ثواني انتظار بعد الخطوة (من 0 إلى 4): اجعلها 3 بعد سؤال تطرحه على التلميذ مثل «ما ناتج 80 + 40؟»، ثم اجعل الخطوة التالية تعطي الجواب.
-- نوّع الأدوات. image هو رقم الصورة.`;
+- نوّع الأدوات. image هو رقم الصورة.`};
     const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-    let r,j;const T0=Date.now();TMO=null;for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>500000)break;r=await overloadRetry(()=>useKeys(K("t"),async key=>{let r;
+    const analyze=async(list,prompt)=>{let r,j;const T0=Date.now();for(let at=0;at<2;at++){if(at>0&&Date.now()-T0>500000)break;r=await overloadRetry(()=>useKeys(K("t"),async key=>{let r;
     if(!key.startsWith("sk-ant-")){
       const parts=[];
-      for(const i of imgs)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
+      for(const i of list)parts.push({inline_data:{mime_type:"image/jpeg",data:await b64(i.blob)}});
       parts.push({text:prompt});
       const resp=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+TM()+":generateContent",{method:"POST",
         headers:{"content-type":"application/json","x-goog-api-key":key},
@@ -332,7 +333,7 @@ $("go").onclick=async()=>{
       r={text:((d.candidates&&d.candidates[0]&&d.candidates[0].content.parts)||[]).map(p=>p.text||"").join("")};
     }else{
       const content=[];
-      for(const i of imgs)content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await b64(i.blob)}});
+      for(const i of list)content.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:await b64(i.blob)}});
       content.push({type:"text",text:prompt});
       const resp=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",
         headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -342,8 +343,15 @@ $("go").onclick=async()=>{
       r={text:d.content.map(c=>c.text||"").join("")};
     }
     return r}));
-    try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}
-    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";{const m1=(String(j.page||"").match(/\d+/)||[""])[0],m2=(String(j.page2||"").match(/\d+/)||[""])[0];let pg=m1;if(imgs.length>1){const q=m2||(m1?String(+m1+1):"");if(q)pg=m1?m1+"-"+q:q}$("lpg").value=pg;if(m1)learnOffset(+m1)}
+    try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}return j};
+    TMO=null;STG="";let j;
+    if(imgs.length<2){j=await analyze(imgs,mkPrompt({part:0}))}
+    else{const sig=imgs.map(i=>i.blob.size).join(",")+"|"+$("len").value+"|"+$("ttlopt").value+"|"+$("sub").value.trim()+"|"+$("lvl").value;let j1;
+      if(PART1&&PART1.sig===sig){j1=PART1.j}else{STG=" (الجزء 1 من 2)";j1=await analyze([imgs[0]],mkPrompt({part:1}));PART1={sig,j:j1}}
+      STG=" (الجزء 2 من 2، الجزء 1 تمّ ✓)";const tail=(j1.steps||[]).slice(-2).map(x=>String(x.say||"")).join(" / ").slice(0,500),j2=await analyze([imgs[1]],mkPrompt({part:2,title:j1.title||"",tail}));
+      j={title:j1.title,page:j1.page,page2:j2.page,steps:[...(j1.steps||[]).map(x=>({...x,image:0})),...(j2.steps||[]).map(x=>({...x,image:1}))]};PART1=null}
+    STG="";
+    steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";{const m1=(String(j.page||"").match(/\d+/)||[""])[0],m2=(String(j.page2||"").match(/\d+/)||[""])[0];let pg=m1;if(imgs.length>1){const q=(m2&&(!m1||+m2>+m1))?m2:(m1?String(+m1+1):"");if(q)pg=m1?m1+"-"+q:q}$("lpg").value=pg;if(m1)learnOffset(+m1)}
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>{if(!f)return f;const wt=z=>{let n=0;for(const c of z)n+=/[.,!?؟،:؛]/.test(c)?8:1;return n},sy=String(t.say||""),wh=String(f.when||""),ix=wh?sy.indexOf(wh):-1,ix2=ix<0&&f.text?sy.indexOf(String(f.text)):-1,pi=ix>=0?ix:ix2,pl=ix>=0?wh.length:ix2>=0?String(f.text).length:0;return{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text,pos:pi>=0&&sy?Math.min(.98,Math.max(.02,(wt(sy.slice(0,pi))+wt(sy.slice(pi,pi+pl))/2)/wt(sy))):null}}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
       t.song=(Array.isArray(t.song)?t.song:[]).map(l=>{const b=l&&Array.isArray(l.box)?l.box.map(Number):null;return b&&b.length===4&&b.every(isFinite)&&l.text?{text:String(l.text),box:b}:null}).filter(Boolean);if(t.song.length>1){const hs=t.song.map(l=>l.box[3]).sort((a,b)=>a-b),mh=hs[hs.length>>1]||.02,yc=l=>l.box[1]+l.box[3]/2,rows=[];[...t.song].sort((a,b)=>yc(a)-yc(b)).forEach(l=>{const r=rows.find(R=>Math.abs(R.y-yc(l))<mh*.6);if(r){r.items.push(l);r.y=(r.y*(r.items.length-1)+yc(l))/r.items.length}else rows.push({y:yc(l),items:[l]})});
         rows.sort((a,b)=>a.y-b.y);rows.forEach(R=>R.items.sort((a,b)=>a.box[0]-b.box[0]));t.song=rows.flatMap(R=>R.items);t.say=rows.map(R=>R.items.map(l=>l.text).join(" ")).join("\n")}
@@ -354,7 +362,7 @@ $("go").onclick=async()=>{
     curPid="p"+Date.now().toString(36);await saveProject();
     start();if(usedAlt)$("msg").textContent="ملاحظة: النموذج المحدد كان مزدحمًا، فتم التحليل بالنموذج البديل "+usedAlt+".";
   }catch(e){
-    TMO=null;OVMSG="";$("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":((e.overload?"النموذج مزدحم عند Google حاليًا (ليس خللًا في التطبيق) وفشلت المحاولات التلقائية، جرّب بعد دقائق أو بدّل النموذج من الإعدادات.\n":"")+(e.message||"حدث خطأ، حاول مرة أخرى."));
+    TMO=null;OVMSG="";$("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":((e.overload?"النموذج مزدحم عند Google حاليًا (ليس خللًا في التطبيق) وفشلت المحاولات التلقائية، جرّب بعد دقائق أو بدّل النموذج من الإعدادات.\n":"")+(e.message||"حدث خطأ، حاول مرة أخرى.")+(PART1?"\nتم حفظ تحليل الجزء الأول، وعند إعادة الضغط على «إنشاء الشرح» يُكمَّل الجزء الثاني فقط.":""));STG="";
   }
   clearInterval(_iv);$("st").textContent="";$("go").disabled=false;
 };
