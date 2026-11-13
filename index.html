@@ -108,7 +108,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <div id="bkv" class="hide"><div class="bkbar"><button type="button" class="ghost" id="bkc">✕ إغلاق</button><b id="bkt"></b></div><div id="bkh" class="sub"></div><div id="bkg"></div><div class="bkfoot"><span id="bksel">اضغط صفحة لاختيارها (حتى صفحتين)</span><button type="button" id="bkgo" disabled>متابعة ←</button></div></div>
 <button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.3</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.4</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -224,7 +224,13 @@ const BKDB={db:null,async open(){if(this.db)return this.db;this.db=await new Pro
   put(st,v){return this.tx(st,"readwrite",t=>{t.objectStore(st).put(v)})},get(st,k){return this.tx(st,"readonly",t=>t.objectStore(st).get(k))},all(st){return this.tx(st,"readonly",t=>t.objectStore(st).getAll())},
   del(id){return this.tx(["books","files"],"readwrite",t=>{t.objectStore("books").delete(id);t.objectStore("files").delete(id)})}};
 let PDFJS=null,pdfDoc=null,pdfTask=null,curBook=null,bkMeta=null,selPages=[],thumbQ=Promise.resolve(),thumbObs=null;
-async function loadPdfjs(){if(PDFJS)return PDFJS;PDFJS=await import("./pdfjs/pdf.min.js");PDFJS.GlobalWorkerOptions.workerSrc=new URL("./pdfjs/pdf.worker.min.js",location.href).href;return PDFJS}
+async function loadPdfjs(){if(PDFJS)return PDFJS;
+  const local=new URL("./pdfjs/pdf.min.js",location.href).href,lw=new URL("./pdfjs/pdf.worker.min.js",location.href).href;let st="";
+  try{const m=await import(local);const rw=await fetch(lw,{cache:"no-store"});if(!rw.ok)throw new Error("worker "+rw.status);m.GlobalWorkerOptions.workerSrc=lw;PDFJS=m;return m}
+  catch(e1){try{const r=await fetch(local,{cache:"no-store"});st=String(r.status)}catch(x){st="لا اتصال"}
+    try{const B="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/",m=await import(B+"pdf.min.mjs"),rr=await fetch(B+"pdf.worker.min.mjs");if(!rr.ok)throw new Error("cdn worker "+rr.status);
+      m.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([await rr.text()],{type:"text/javascript"}));PDFJS=m;return m}
+    catch(e2){throw new Error("تعذّر تحميل مكتبة PDF. الملف المحلي pdfjs/pdf.min.js رمز الخادم: "+st+"، والنسخة الاحتياطية من الإنترنت فشلت أيضًا. ارفع مجلد pdfjs إلى GitHub أو تأكد من اتصالك بالإنترنت.")}}}
 const bkPrinted=(m,n)=>m.offset!=null?n-m.offset:null;
 const bkLabel=(m,n)=>{const p=bkPrinted(m,n);return p!=null&&p>=1?"ص"+p:"#"+n};
 async function addBook(file){$("msg").textContent="جارٍ حفظ الكتاب...";
