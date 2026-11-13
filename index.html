@@ -75,6 +75,7 @@ button:disabled{opacity:.45;cursor:default}
 .pj{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
 .pt{flex:1;min-width:0}.pt b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pt small{display:block;color:var(--mute)}
 .hide{display:none!important}
+#go1,#go2{display:block;width:100%;margin-top:8px}
 #lib{margin-bottom:12px}.libh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .bk{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:var(--card)}
 .bk .bi{flex:1;min-width:0}.bk .bi b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bk .bi small{color:var(--mute)}
@@ -107,7 +108,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 <div id="bkv" class="hide"><div class="bkbar"><button type="button" class="ghost" id="bkc">✕ إغلاق</button><b id="bkt"></b></div><div id="bkh" class="sub"></div><div id="bkg"></div><div class="bkfoot"><span id="bksel">اضغط صفحة لاختيارها (حتى صفحتين)</span><button type="button" id="bkgo" disabled>متابعة ←</button></div></div>
 <button id="gear" type="button" aria-label="الإعدادات" title="الإعدادات">⚙️</button>
 <main>
-<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.2</span></h1>
+<h1>📚 شارح الدروس التفاعلي <span id="appver" dir="ltr">v4.3</span></h1>
 <p class="sub">ارفع صورة أو صورتين من كتاب الابتدائي وسيشرح لك التطبيق الدرس خطوة بخطوة.</p>
 
 <section id="up" class="card">
@@ -125,7 +126,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
     <div class="w"><label for="ttlopt">خيارات العنوان</label><select id="ttlopt"><option value="0">1- درس جديد</option><option value="1">2- مازلنا في درس</option><option value="2">3- محور جديد</option><option value="3">4- مازلنا في محور</option></select></div>
     <div class="w" style="color:var(--mute);font-size:.85rem">عنوان الدرس يُستخرج تلقائيًا من الصورة، ويظهر مع هذه المعلومات في مقدمة الفيديو.</div>
   </div>
-  <div class="row"><button id="go" disabled>✨ إنشاء الشرح</button><span id="st"></span></div>
+  <div class="row"><button id="go" disabled>✨ إنشاء الشرح</button><button id="go1" class="hide">✨ بدء إنشاء الدرس الأول</button><button id="go2" class="hide" disabled>✨ بدء إنشاء الدرس الثاني</button><span id="st"></span></div>
   <div id="msg"></div>
   <div id="proj" class="hide"><h3 style="margin:20px 0 8px;font-size:1rem">📁 مشاريعي المحفوظة</h3><div id="plist"></div></div>
 </section>
@@ -174,7 +175,7 @@ label.chk{font-size:.95rem;color:var(--mute);display:flex;gap:6px;align-items:ce
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let TMO=null,OVMSG="",SLK=1,STG="",PART1=null;
+let TMO=null,OVMSG="",SLK=1,STG="",BUSY=false;const PARTS={1:null,2:null};
 const MODELS=[["gemini-3.8-flash","مجاني","بطيء"],["gemini-3.5-flash-lite","مجاني","سريع"],["gemini-3.1-flash-lite","مجاني","سريع"],["gemini-3.1-pro-preview","مجاني","بطيء"],["gemini-3.6-flash","مدفوع","سريع"],["gemini-3-flash-preview","مدفوع","سريع"],["gemini-4-argon","مدفوع","بطيء"]];
 function fillModels(el,def){el.innerHTML=MODELS.map(([id,pay,sp])=>`<option value="${id}">${id} — ${pay} • ${sp}</option>`).join("")}
 const TM=()=>(TMO||$("tm").value.trim()||"gemini-3.8-flash"),KEYS={t:[],a:[]},K=k=>KEYS[k].map(x=>String(x).trim()).filter(Boolean),LOGO={el:null};
@@ -281,7 +282,10 @@ function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectUR
 const SL=[null,null];
 function refreshSlots(){imgs=SL.filter(Boolean);
   [1,2].forEach(n=>{const i=SL[n-1];$("sl"+n).classList.toggle("has",!!i);$("x"+n).classList.toggle("hide",!i);if(i)$("th"+n).src=i.url;else $("th"+n).removeAttribute("src")});
-  $("go").disabled=!SL[0]}
+  const two=!!(SL[0]&&SL[1]),sg=n=>SL[n]?SL[n].blob.size+":"+SL[n].w+"x"+SL[n].h:"",ok1=!!(PARTS[1]&&PARTS[1].sig===sg(0)),ok2=!!(PARTS[2]&&PARTS[2].sig===sg(1));
+  $("go").classList.toggle("hide",two);$("go1").classList.toggle("hide",!two);$("go2").classList.toggle("hide",!two);
+  $("go1").textContent=ok1?"🔄 إعادة إنشاء الدرس الأول":"✨ بدء إنشاء الدرس الأول";$("go2").textContent=ok2?"🔄 إعادة إنشاء الدرس الثاني":"✨ بدء إنشاء الدرس الثاني";
+  $("go").disabled=!SL[0]||BUSY;$("go1").disabled=BUSY;$("go2").disabled=BUSY||!ok1}
 [1,2].forEach(n=>{const inp=$(n===1?"f":"f2");
   inp.onchange=async e=>{const f=e.target.files[0];$("msg").textContent="";if(!f)return;curBook=null;
     try{SL[n-1]=await loadImg(f)}catch(x){SL[n-1]=null;$("msg").textContent="تعذّر قراءة الصورة."}
@@ -292,8 +296,8 @@ function refreshSlots(){imgs=SL.filter(Boolean);
 (()=>{const o=$("ttlopt");try{o.value=localStorage.getItem("ttlopt")||"0"}catch(e){}o.onchange=()=>{try{localStorage.setItem("ttlopt",o.value)}catch(e){}}})();
 const TOPT=["درسنا لنهار اليوم هو","مازلنا في درس","محور جديد هو","مازلنا في محور"];
 // ---- تحليل الدرس ----
-$("go").onclick=async()=>{
-  $("msg").textContent="";$("go").disabled=true;$("lpg").value="";$("lno").value="";
+async function runGo(which){
+  $("msg").textContent="";BUSY=true;["go","go1","go2"].forEach(i=>$(i).disabled=true);$("lpg").value="";$("lno").value="";
   const _t0=Date.now(),_iv=setInterval(()=>{$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس'+STG+'... '+Math.round((Date.now()-_t0)/1000)+" ث"+(OVMSG?" — "+OVMSG:"")},1000);$("st").innerHTML='<span class="spin"></span>جارٍ تحليل الدرس...';
   try{
     if(!K("t").length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");
@@ -346,10 +350,13 @@ ${part===2?"":`في أول خطوة (المقدمة) انطق عنوان الد�
     try{j=parseJ(r.text);break}catch(e){if(at>=1)throw new Error("ردّ Gemini غير صالح: "+e.message+" — أعد المحاولة أو جرّب صورة أخرى.")}}return j};
     TMO=null;STG="";let j;
     if(imgs.length<2){j=await analyze(imgs,mkPrompt({part:0}))}
-    else{const sig=imgs.map(i=>i.blob.size).join(",")+"|"+$("len").value+"|"+$("ttlopt").value+"|"+$("sub").value.trim()+"|"+$("lvl").value;let j1;
-      if(PART1&&PART1.sig===sig){j1=PART1.j}else{STG=" (الجزء 1 من 2)";j1=await analyze([imgs[0]],mkPrompt({part:1}));PART1={sig,j:j1}}
-      STG=" (الجزء 2 من 2، الجزء 1 تمّ ✓)";const tail=(j1.steps||[]).slice(-2).map(x=>String(x.say||"")).join(" / ").slice(0,500),j2=await analyze([imgs[1]],mkPrompt({part:2,title:j1.title||"",tail}));
-      j={title:j1.title,page:j1.page,page2:j2.page,steps:[...(j1.steps||[]).map(x=>({...x,image:0})),...(j2.steps||[]).map(x=>({...x,image:1}))]};PART1=null}
+    else{const sg=n=>imgs[n].blob.size+":"+imgs[n].w+"x"+imgs[n].h;
+      if(which===1){STG=" (الدرس الأول)";const j1=await analyze([imgs[0]],mkPrompt({part:1}));PARTS[1]={sig:sg(0),j:j1}}
+      else if(which===2){const p1=PARTS[1];if(!p1||p1.sig!==sg(0))throw new Error("أنشئ الدرس الأول أولًا.");STG=" (الدرس الثاني)";
+        const tail=(p1.j.steps||[]).slice(-2).map(x=>String(x.say||"")).join(" / ").slice(0,500),j2=await analyze([imgs[1]],mkPrompt({part:2,title:p1.j.title||"",tail}));PARTS[2]={sig:sg(1),j:j2}}
+      const p1=PARTS[1],p2=PARTS[2];
+      if(!(p1&&p1.sig===sg(0)&&p2&&p2.sig===sg(1))){STG="";TMO=null;OVMSG="";$("msg").textContent=which===1?"تم إنشاء الدرس الأول ✓ ("+((p1.j.steps||[]).length)+" خطوة). اضغط «بدء إنشاء الدرس الثاني».":"تم إنشاء الدرس الثاني ✓. ابدأ بإنشاء الدرس الأول.";return}
+      j={title:p1.j.title,page:p1.j.page,page2:p2.j.page,steps:[...(p1.j.steps||[]).map(x=>({...x,image:0})),...(p2.j.steps||[]).map(x=>({...x,image:1}))]}}
     STG="";
     steps=(j.steps||[]).filter(s=>s&&s.say);title=j.title||"";{const m1=(String(j.page||"").match(/\d+/)||[""])[0],m2=(String(j.page2||"").match(/\d+/)||[""])[0];let pg=m1;if(imgs.length>1){const q=(m2&&(!m1||+m2>+m1))?m2:(m1?String(+m1+1):"");if(q)pg=m1?m1+"-"+q:q}$("lpg").value=pg;if(m1)learnOffset(+m1)}
     steps.forEach(t=>{t.tts=(typeof t.tts==="string"&&t.tts.trim())?t.tts:t.say;t.say0=t.say;t.tts0=t.tts;t.fills=(Array.isArray(t.fills)?t.fills:[]).map(f=>{if(!f)return f;const wt=z=>{let n=0;for(const c of z)n+=/[.,!?؟،:؛]/.test(c)?8:1;return n},sy=String(t.say||""),wh=String(f.when||""),ix=wh?sy.indexOf(wh):-1,ix2=ix<0&&f.text?sy.indexOf(String(f.text)):-1,pi=ix>=0?ix:ix2,pl=ix>=0?wh.length:ix2>=0?String(f.text).length:0;return{x:+f.x,y:+f.y,w:+f.w||0,h:+f.h||0,text:f.text,pos:pi>=0&&sy?Math.min(.98,Math.max(.02,(wt(sy.slice(0,pi))+wt(sy.slice(pi,pi+pl))/2)/wt(sy))):null}}).filter(f=>f&&isFinite(f.x)&&isFinite(f.y)&&f.text!=null&&f.text!=="");
@@ -362,10 +369,11 @@ ${part===2?"":`في أول خطوة (المقدمة) انطق عنوان الد�
     curPid="p"+Date.now().toString(36);await saveProject();
     start();if(usedAlt)$("msg").textContent="ملاحظة: النموذج المحدد كان مزدحمًا، فتم التحليل بالنموذج البديل "+usedAlt+".";
   }catch(e){
-    TMO=null;OVMSG="";$("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":((e.overload?"النموذج مزدحم عند Google حاليًا (ليس خللًا في التطبيق) وفشلت المحاولات التلقائية، جرّب بعد دقائق أو بدّل النموذج من الإعدادات.\n":"")+(e.message||"حدث خطأ، حاول مرة أخرى.")+(PART1?"\nتم حفظ تحليل الجزء الأول، وعند إعادة الضغط على «إنشاء الشرح» يُكمَّل الجزء الثاني فقط.":""));STG="";
-  }
-  clearInterval(_iv);$("st").textContent="";$("go").disabled=false;
-};
+    TMO=null;OVMSG="";$("msg").textContent=e.code==="not_granted"?"لم تتم الموافقة على استخدام الذكاء الاصطناعي.":((e.overload?"النموذج مزدحم عند Google حاليًا (ليس خللًا في التطبيق) وفشلت المحاولات التلقائية، جرّب بعد دقائق أو بدّل النموذج من الإعدادات.\n":"")+(e.message||"حدث خطأ، حاول مرة أخرى.")+(PARTS[1]&&imgs.length>1?"\nما اكتمل من الأجزاء محفوظ، ولن يُعاد إلا الجزء الذي تضغط عليه.":""));STG="";
+  }finally{
+  clearInterval(_iv);$("st").textContent="";BUSY=false;refreshSlots();}
+}
+$("go").onclick=()=>runGo(0);$("go1").onclick=()=>runGo(1);$("go2").onclick=()=>runGo(2);
 
 // ---- العرض ----
 function start(){$("up").classList.add("hide");$("player").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";
